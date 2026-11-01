@@ -16,7 +16,7 @@ inputs = {
     'fabric-api-0.92.2+1.20.1.jar': ('fabric-api', '0.92.2+1.20.1'),
     'sodium-fabric-0.5.11+mc1.20.1.jar': ('sodium', '0.5.11'),
     'lithium-fabric-mc1.20.1-0.11.4.jar': ('lithium', '0.11.4'),
-    'zythera-client-0.4.1.jar': ('zythera', '0.4.1'),
+    'zythera-client-0.5.0.jar': ('zythera', '0.5.0'),
 }
 if output.exists():
     shutil.rmtree(output)
@@ -43,7 +43,7 @@ for name, (mod_id, version) in inputs.items():
 with (output / 'SHA256SUMS.txt').open('w', encoding='utf-8') as checksums:
     for jar in sorted(mods.glob('*.jar')):
         checksums.write(hashlib.sha256(jar.read_bytes()).hexdigest() + '  mods/' + jar.name + '\n')
-archive = root / 'zythera-modpack-1.20.1-v0.4.1-alpha.zip'
+archive = root / 'zythera-modpack-1.20.1-v0.5.0-alpha.zip'
 with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=6) as z:
     for path in sorted(output.rglob('*')):
         if path.is_file():

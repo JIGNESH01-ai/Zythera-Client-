@@ -1,8 +1,10 @@
 package com.zythera.client.mixin;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.zythera.client.LoadingTimeline;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Overlay;
 import net.minecraft.client.gui.screen.SplashOverlay;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
@@ -16,97 +18,141 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
 import java.io.IOException;
 import java.io.InputStream;
 
-/** Draws over vanilla after it has advanced its reload and fade lifecycle. */
+/** Keeps vanilla's reload and error handling, replacing only its loading visuals. */
 @Mixin(SplashOverlay.class)
 public abstract class SplashOverlayMixin {
     @Shadow @Final private MinecraftClient client;
     @Shadow @Final private ResourceReload reload;
-    @Shadow private long reloadCompleteTime;
-    @Unique private static final Identifier ZYTHERA_ART = new Identifier("zythera", "loading-art-runtime");
+    @Unique private static final Identifier ART = new Identifier("zythera", "loading-art-runtime");
+    @Unique private static final Identifier FONT = new Identifier("zythera", "loading-font-runtime");
     @Unique private static final String[] TIPS = {
-        "Tip: Configure your HUD in Zythera Mods.",
-        "Tip: Lower render distance to improve performance.",
+        "Tip: Open Zythera Mods to customize the HUD.",
+        "Tip: Lower render distance for better performance.",
         "Tip: Enjoy your gameplay with Zythera Client!"
     };
-    @Unique private boolean zythera$smokeLogged;
-    @Unique private boolean zythera$textureAttempted;
-    @Unique private boolean zythera$textureReady;
+    @Unique private LoadingTimeline zythera$timeline;
+    @Unique private boolean zythera$textureAttempted, zythera$artReady, zythera$fontReady, zythera$smokeLogged, zythera$completionLogged;
+    @Unique private double zythera$shown = 1;
 
+    @Unique private boolean zythera$reloadSucceeded() {
+        if (!reload.isComplete()) return false;
+        try { reload.throwException(); return true; }
+        catch (RuntimeException e) { return false; }
+    }
+    @Unique private boolean zythera$reloadFailed() {
+        if (!reload.isComplete()) return false;
+        try { reload.throwException(); return false; }
+        catch (RuntimeException e) { return true; }
+    }
+    @Inject(method = "render", at = @At("HEAD"))
+    private void zythera$advance(DrawContext ctx, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        long now = Util.getMeasuringTimeMs();
+        if (zythera$timeline == null) zythera$timeline = new LoadingTimeline(now);
+        zythera$shown = zythera$timeline.update(now, zythera$reloadSucceeded());
+    }
+    /** Vanilla may finish first. Delay only overlay removal, not the reload, callback, or error handling. */
+    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;setOverlay(Lnet/minecraft/client/gui/screen/Overlay;)V"))
+    private void zythera$finishWhenReady(MinecraftClient client, Overlay overlay) {
+        if (overlay != null || zythera$reloadFailed() || (zythera$timeline != null && zythera$timeline.canClose(Util.getMeasuringTimeMs()))) {
+            client.setOverlay(overlay);
+        }
+    }
     @Inject(method = "render", at = @At("TAIL"))
     private void zythera$render(DrawContext ctx, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-        // The overlay may outlive its reload for the vanilla two-second fade-out.
-        float opacity = reloadCompleteTime < 0 ? 1.0f :
-            1.0f - MathHelper.clamp((Util.getMeasuringTimeMs() - reloadCompleteTime - 1000L) / 1000.0f, 0.0f, 1.0f);
-        if (opacity <= 0 || client.textRenderer == null) return;
+        if (zythera$reloadFailed() || zythera$timeline == null || zythera$timeline.canClose(Util.getMeasuringTimeMs())) return;
         int width = ctx.getScaledWindowWidth(), height = ctx.getScaledWindowHeight();
-        if (width < 1 || height < 1) return;
-        int alpha = MathHelper.clamp((int)(opacity * 255), 0, 255);
-        ctx.fill(0, 0, width, height, zythera$color(alpha, 0x090610));
-        // Stylized End pillars remain visible when the image cannot be loaded.
-        for (int i = 0; i < 9; i++) {
-            int x = i * width / 8 - width / 20;
-            int pillarHeight = height / 5 + (i * 73 % Math.max(1, height / 4));
-            ctx.fill(x, height - pillarHeight, x + Math.max(3, width / 24), height, zythera$color(alpha, 0x1b1027));
-        }
+        if (width < 24 || height < 45) return;
         if (!zythera$textureAttempted) {
             zythera$textureAttempted = true;
-            // The normal resource manager is still reloading at startup. Load this one
-            // small image directly from the mod JAR, then register a runtime texture.
-            try (InputStream stream = SplashOverlayMixin.class.getResourceAsStream("/assets/zythera/textures/gui/loading-art.png")) {
-                if (stream != null) {
-                    client.getTextureManager().registerTexture(ZYTHERA_ART, new NativeImageBackedTexture(NativeImage.read(stream)));
-                    zythera$textureReady = true;
-                }
-            } catch (IOException | RuntimeException e) {
-                System.err.println("[Zythera] Could not load splash artwork: " + e.getMessage());
-            }
+            zythera$artReady = zythera$loadTexture(ART, "/assets/zythera/textures/gui/loading-art.png");
+            zythera$fontReady = zythera$loadTexture(FONT, "/assets/zythera/textures/gui/loading-font.png");
         }
-        int artWidth = Math.min(width - 12, Math.min(640, (int)(height * 1.35f)));
-        int artHeight = artWidth * 417 / 1024;
-        int artY = Math.max(20, (height * 10 / 100));
-        if (zythera$textureReady && artWidth > 0) {
+        ctx.fill(0, 0, width, height, 0xff09070b);
+        for (int i = 0; i < 8; i++) {
+            int x = i * width / 7;
+            int h = height / 5 + (i * 47 % Math.max(1, height / 4));
+            ctx.fill(x, height - h, x + Math.max(2, width / 28), height, 0xff1b1024);
+        }
+        int barLimit = height - (height >= 145 ? 57 : height >= 125 ? 39 : 28);
+        int artY = 16;
+        int maxArtHeight = Math.max(0, barLimit - artY - 17);
+        int artWidth = Math.max(1, Math.min(width - 16, Math.min(640, maxArtHeight * 1024 / 417)));
+        int artHeight = Math.max(1, artWidth * 417 / 1024);
+        if (zythera$artReady && maxArtHeight >= 12) {
             ctx.getMatrices().push();
             ctx.getMatrices().translate((width - artWidth) / 2.0, artY, 0);
             ctx.getMatrices().scale(artWidth / 1024.0f, artHeight / 417.0f, 1);
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            RenderSystem.setShaderColor(1, 1, 1, opacity);
-            ctx.drawTexture(ZYTHERA_ART, 0, 0, 0, 0, 1024, 417, 1024, 417);
-            RenderSystem.setShaderColor(1, 1, 1, 1);
+            ctx.drawTexture(ART, 0, 0, 0, 0, 1024, 417, 1024, 417);
             ctx.getMatrices().pop();
         } else {
-            ctx.drawCenteredTextWithShadow(client.textRenderer, "ZYTHERA CLIENT", width / 2, artY + 15, zythera$color(alpha, 0xffd34e));
+            artHeight = 12;
+            zythera$center(ctx, "ZYTHERA CLIENT", width / 2, artY, width - 12, 0xffd166);
         }
         if (!zythera$smokeLogged && "1".equals(System.getenv("ZYTHERA_SMOKE_TEST"))) {
             zythera$smokeLogged = true;
-            System.out.println("[Zythera] SMOKE_SPLASH_RENDERED artwork=" + zythera$textureReady);
+            System.out.println("[Zythera] SMOKE_SPLASH_RENDERED artwork=" + zythera$artReady + " font=" + zythera$fontReady);
         }
-        float progress = MathHelper.clamp(reload.getProgress(), 0.0f, 1.0f);
-        int barWidth = Math.max(1, Math.min(width - 30, 410));
-        int barX = (width - barWidth) / 2;
-        int barY = Math.min(height - 55, artY + artHeight + Math.max(12, height / 20));
-        int fill = Math.round((barWidth - 4) * progress);
-        ctx.drawCenteredTextWithShadow(client.textRenderer, "Loading resources...", width / 2, barY - 15, zythera$color(alpha, 0xffffff));
-        ctx.fill(barX, barY, barX + barWidth, barY + 9, zythera$color(alpha, 0xffd148));
-        ctx.fill(barX + 1, barY + 1, barX + barWidth - 1, barY + 8, zythera$color(alpha, 0x170f0b));
-        if (fill > 0) {
-            ctx.fill(barX + 2, barY + 2, barX + 2 + fill, barY + 7, zythera$color(alpha, 0xffc42a));
-            int shine = (int)((Util.getMeasuringTimeMs() / 14) % Math.max(1, fill));
-            ctx.fill(barX + 2 + shine, barY + 2, barX + 2 + Math.min(fill, shine + 8), barY + 4, zythera$color(alpha, 0xffed8b));
+        int barY = Math.min(barLimit, artY + artHeight + 17);
+        int barWidth = Math.max(8, Math.min(width - 24, 410));
+        int x = (width - barWidth) / 2;
+        int visualPercent = Math.min(100, Math.max(1, (int)Math.floor(zythera$shown)));
+        if (visualPercent == 100 && !zythera$completionLogged && "1".equals(System.getenv("ZYTHERA_SMOKE_TEST"))) {
+            zythera$completionLogged = true;
+            System.out.println("[Zythera] SMOKE_ANIMATION_COMPLETE");
         }
-        ctx.drawCenteredTextWithShadow(client.textRenderer, Math.round(progress * 100) + "%", width / 2, barY + 13, zythera$color(alpha, 0xffffff));
-        String tip = TIPS[(int)((Util.getMeasuringTimeMs() / 7000) % TIPS.length)];
-        if (height > 170) ctx.drawCenteredTextWithShadow(client.textRenderer, tip, width / 2, barY + 27, zythera$color(alpha, 0xffd34e));
-        ctx.drawTextWithShadow(client.textRenderer, "FPS: " + client.getCurrentFps(), 6, 6, zythera$color(alpha, 0xffd34e));
-        if (height > 120) {
-            ctx.drawCenteredTextWithShadow(client.textRenderer, "Made by JIGNESH_GAMING-k7j  |  Subscribe on YouTube", width / 2, height - 21, zythera$color(alpha, 0xffffff));
-            ctx.drawCenteredTextWithShadow(client.textRenderer, "Optimized for Low End Devices", width / 2, height - 10, zythera$color(alpha, 0xffd34e));
+        String status = visualPercent == 100 ? "Loading Complete!" : "Visual startup animation";
+        zythera$center(ctx, status, width / 2, barY - 13, width - 12, 0xffffff);
+        ctx.fill(x, barY, x + barWidth, barY + 8, 0xffffd148);
+        ctx.fill(x + 1, barY + 1, x + barWidth - 1, barY + 7, 0xff170f0b);
+        int fill = (int)Math.round((barWidth - 4) * visualPercent / 100.0);
+        if (fill > 0) ctx.fill(x + 2, barY + 2, x + 2 + fill, barY + 6, 0xffffc42a);
+        zythera$center(ctx, visualPercent + "%", width / 2, barY + 11, width - 12, 0xffffff);
+        // This is actual resource progress, separate from the explicitly labelled animation.
+        int real = MathHelper.clamp(Math.round(reload.getProgress() * 100), 0, 100);
+        if (height >= 125) zythera$center(ctx, "Resources: " + real + "%", width / 2, barY + 22, width - 12, 0xffd166);
+        if (height >= 190 && barY + 44 < height - 27) {
+            String tip = TIPS[(int)((Util.getMeasuringTimeMs() / 7000) % TIPS.length)];
+            zythera$center(ctx, tip, width / 2, barY + 35, width - 12, 0xffd166);
+        }
+        if (height >= 145) {
+            zythera$center(ctx, "Made by JIGNESH_GAMING-k7j", width / 2, height - 22, width - 12, 0xffffff);
+            zythera$center(ctx, "Subscribe on YouTube", width / 2, height - 11, width - 12, 0xffd166);
         }
     }
-    @Unique private static int zythera$color(int alpha, int rgb) { return (alpha << 24) | rgb; }
+    @Unique private boolean zythera$loadTexture(Identifier id, String resource) {
+        try (InputStream stream = SplashOverlayMixin.class.getResourceAsStream(resource)) {
+            if (stream == null) return false;
+            client.getTextureManager().registerTexture(id, new NativeImageBackedTexture(NativeImage.read(stream)));
+            return true;
+        } catch (IOException | RuntimeException e) {
+            System.err.println("[Zythera] Could not load " + resource + ": " + e.getMessage());
+            return false;
+        }
+    }
+    /** ASCII-only bitmap glyphs are available even before Minecraft's font resources finish loading. */
+    @Unique private void zythera$center(DrawContext ctx, String text, int centerX, int y, int maxWidth, int rgb) {
+        if (!zythera$fontReady) {
+            if (client.textRenderer != null) ctx.drawCenteredTextWithShadow(client.textRenderer, text, centerX, y, 0xff000000 | rgb);
+            return;
+        }
+        float scale = Math.min(1.0f, Math.max(0.1f, maxWidth / (float)Math.max(1, text.length() * 8)));
+        ctx.getMatrices().push();
+        ctx.getMatrices().translate(centerX - text.length() * 8 * scale / 2.0, y, 0);
+        ctx.getMatrices().scale(scale, scale, 1);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(((rgb >> 16) & 255) / 255f, ((rgb >> 8) & 255) / 255f, (rgb & 255) / 255f, 1);
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            int index = (c >= 32 && c <= 126 ? c : '?') - 32;
+            ctx.drawTexture(FONT, i * 8, 0, (index % 16) * 8, (index / 16) * 12, 8, 12, 128, 72);
+        }
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        ctx.getMatrices().pop();
+    }
 }

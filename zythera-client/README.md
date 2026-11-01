@@ -29,7 +29,7 @@ The workflow builds and uploads JAR artifacts on relevant pushes and pull reques
 
 ## Resource loading screen
 
-The Fabric client overlays the Minecraft resource-reload screen with Zythera artwork and the reload monitor’s real progress. Minecraft still controls reload completion and error handling. It is not a world/terrain loading progress indicator; the game does not expose a single equivalent progress value there. The artwork is derived from the creator-provided reference. This feature has not yet been tested in-game or with PojavLauncher.
+The Fabric client overlays Minecraft's resource-reload screen with Zythera artwork and an ASCII bitmap font loaded directly from the mod, so text does not depend on font resources still being reloaded. The percentage labeled "Visual startup animation" follows the requested sequence with five-second holds at 50, 70 and 95; it is **not** actual loading progress. A separate "Resources" percentage comes from Minecraft's reload monitor. The animation waits below 100 until the reload succeeds, shows "Loading Complete!", then lets vanilla close the overlay. Errors are not suppressed. The intentional sequence adds at least 19.8 seconds to each resource reload, including reloads triggered in-game; it does not speed up or measure world generation. On multiplayer the server controls simulation behavior. The artwork is derived from the creator-provided reference. PojavLauncher/Android compatibility has not been tested.
 
 ## Installable instance
 
