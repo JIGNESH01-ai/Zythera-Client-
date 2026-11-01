@@ -41,6 +41,7 @@ public final class ZytheraClient implements ClientModInitializer {
         menu = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.zythera.menu", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, "category.zythera"));
         zoomKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.zythera.zoom", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_C, "category.zythera"));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (!settings.optimizationInitialized) PerformanceSettings.apply(client, "Potato");
             while (menu.wasPressed()) client.setScreen(new ZytheraScreen(client.currentScreen));
         });
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {

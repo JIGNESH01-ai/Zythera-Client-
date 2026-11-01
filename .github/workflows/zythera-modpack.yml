@@ -23,9 +23,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p inputs
-          cp zythera-client/build/libs/zythera-client-0.3.0.jar inputs/
+          cp zythera-client/build/libs/zythera-client-0.4.0.jar inputs/
           curl --fail --location --retry 3 -o 'inputs/fabric-api-0.92.2+1.20.1.jar' 'https://github.com/FabricMC/fabric-api/releases/download/0.92.2%2B1.20.1/fabric-api-0.92.2%2B1.20.1.jar'
           curl --fail --location --retry 3 -o 'inputs/sodium-fabric-0.5.11+mc1.20.1.jar' 'https://github.com/CaffeineMC/sodium/releases/download/mc1.20.1-0.5.11/sodium-fabric-0.5.11%2Bmc1.20.1.jar'
+          curl --fail --location --retry 3 -o 'inputs/ferritecore-6.0.1-fabric.jar' 'https://cdn.modrinth.com/data/uXXizFIs/versions/unerR5MN/ferritecore-6.0.1-fabric.jar'
           curl --fail --location --retry 3 -o 'inputs/lithium-fabric-mc1.20.1-0.11.4.jar' 'https://github.com/CaffeineMC/lithium/releases/download/mc1.20.1-0.11.4/lithium-fabric-mc1.20.1-0.11.4.jar'
       - name: Verify inputs and assemble both archive formats
         run: |
@@ -35,10 +36,10 @@ jobs:
         with:
           name: zythera-modpack-1.20.1
           path: |
-            zythera-client-1.20.1-v0.3.0-alpha.mrpack
-            zythera-client-1.20.1-v0.3.0-alpha.zip
-            zythera-modpack-1.20.1-v0.3.0-alpha.zip
-            zythera-client/build/libs/zythera-client-0.3.0.jar
+            zythera-client-1.20.1-v0.4.0-alpha.mrpack
+            zythera-client-1.20.1-v0.4.0-alpha.zip
+            zythera-modpack-1.20.1-v0.4.0-alpha.zip
+            zythera-client/build/libs/zythera-client-0.4.0.jar
           if-no-files-found: error
   smoke:
     runs-on: ubuntu-latest
@@ -66,6 +67,9 @@ jobs:
           timeout 180 xvfb-run -a ./zythera-client/gradlew -p zythera-client --no-daemon runClient 2>&1 | tee smoke.log
           grep -F '[Zythera] SMOKE_SPLASH_RENDERED artwork=true' smoke.log
           grep -F '[Zythera] SMOKE_TITLE_RENDERED' smoke.log
+          grep -F '[Zythera] SMOKE_PROFILES_OK' smoke.log
+          grep -Fx 'renderDistance:2' zythera-client/run/options.txt
+          grep -Fx 'simulationDistance:2' zythera-client/run/options.txt
       - name: Report smoke log on failure
         if: failure()
         run: |
@@ -95,9 +99,9 @@ jobs:
           TARGET_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          tag=zythera-modpack-1.20.1-v0.3.0-alpha
+          tag=zythera-modpack-1.20.1-v0.4.0-alpha
           if gh release view "$tag" >/dev/null 2>&1; then
             echo 'Release already exists; not overwriting it.'
             exit 0
           fi
-          gh release create "$tag" zythera-client-1.20.1-v0.3.0-alpha.mrpack zythera-client-1.20.1-v0.3.0-alpha.zip zythera-modpack-1.20.1-v0.3.0-alpha.zip zythera-client/build/libs/zythera-client-0.3.0.jar --target "$TARGET_SHA" --title 'Zythera 1.20.1 modpack 0.3.0 alpha' --notes 'Experimental pack. CI desktop development client rendered the title screen; gameplay and PojavLauncher/Android have not been tested. Requires Minecraft Java 1.20.1, Fabric Loader and Java 17. Read INSTALL.txt. Sodium may be incompatible with some Pojav renderers; remove it if necessary.' --prerelease
+          gh release create "$tag" zythera-client-1.20.1-v0.4.0-alpha.mrpack zythera-client-1.20.1-v0.4.0-alpha.zip zythera-modpack-1.20.1-v0.4.0-alpha.zip zythera-client/build/libs/zythera-client-0.4.0.jar --target "$TARGET_SHA" --title 'Zythera 1.20.1 modpack 0.4.0 alpha' --notes 'Experimental pack. CI desktop development client rendered the title screen; gameplay and PojavLauncher/Android have not been tested. Requires Minecraft Java 1.20.1, Fabric Loader and Java 17. Read INSTALL.txt. Sodium may be incompatible with some Pojav renderers; remove it if necessary.' --prerelease

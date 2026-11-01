@@ -1,5 +1,10 @@
-renderDistance:4
-simulationDistance:4
-maxFps:60
+renderDistance:2
+simulationDistance:2
+maxFps:30
 particles:2
 graphicsMode:0
+clouds:0
+ao:false
+entityDistanceScaling:0.5
+enableVsync:false
+mipmapLevels:0

@@ -5,6 +5,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.option.ParticlesMode;
+import net.minecraft.client.option.GraphicsMode;
+import net.minecraft.client.option.CloudRenderMode;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import java.net.URI;
@@ -15,7 +17,7 @@ public final class ZytheraScreen extends Screen {
     private final Screen parent;
     private String page = "Mods", query = "";
     private boolean draggingArmor, draggingText;
-    private int modsPage;
+    private int modsPage, fpsPage;
     private int dragX, dragY;
     private TextFieldWidget search;
     private int left, top, panelWidth, panelHeight;
@@ -62,18 +64,36 @@ public final class ZytheraScreen extends Screen {
             button("Armor durability: " + (s.armorDurability ? "ON" : "OFF"), content, top + 125, w, () -> { s.armorDurability = !s.armorDurability; s.save(); rebuild(); });
             button("Armor icons: " + (s.armorIcons ? "ON" : "OFF"), content, top + 150, w, () -> { s.armorIcons = !s.armorIcons; s.save(); rebuild(); });
         } else if (page.equals("FPS Boost")) {
-            button("Potato preset (4 chunks, minimal particles, 30 FPS)", content, top + 50, w, () -> {
-                client.options.getViewDistance().setValue(4);
-                client.options.getParticles().setValue(ParticlesMode.MINIMAL);
-                client.options.getMaxFps().setValue(30);
-                client.options.write();
-            });
-            button("Balanced preset (8 chunks, decreased particles, 60 FPS)", content, top + 75, w, () -> {
-                client.options.getViewDistance().setValue(8);
-                client.options.getParticles().setValue(ParticlesMode.DECREASED);
-                client.options.getMaxFps().setValue(60);
-                client.options.write();
-            });
+            var o = client.options;
+            button("Settings page " + (fpsPage + 1) + "/2  >", content, top + 42, w, () -> { fpsPage = 1 - fpsPage; rebuild(); });
+            if (fpsPage == 0) {
+                button("Profile: " + ZytheraClient.settings.performanceProfile + "  (change)", content, top + 66, w, () -> {
+                    String p = ZytheraClient.settings.performanceProfile;
+                    PerformanceSettings.apply(client, "Potato".equals(p) ? "Balanced" : "Balanced".equals(p) ? "Smooth FPS" : "Potato"); rebuild();
+                });
+                button("Render distance: " + o.getViewDistance().getValue() + " chunks", content, top + 90, w, () -> {
+                    int value = o.getViewDistance().getValue(); o.getViewDistance().setValue(value >= 12 ? 2 : value + 1); saveOptions();
+                });
+                button("Simulation distance: " + o.getSimulationDistance().getValue() + " chunks", content, top + 114, w, () -> {
+                    int value = o.getSimulationDistance().getValue(); o.getSimulationDistance().setValue(value >= 12 ? 2 : value + 1); saveOptions();
+                });
+                button("Graphics: " + o.getGraphicsMode().getValue(), content, top + 138, w, () -> {
+                    o.getGraphicsMode().setValue(o.getGraphicsMode().getValue() == GraphicsMode.FAST ? GraphicsMode.FANCY : GraphicsMode.FAST); saveOptions();
+                });
+                button("Particles: " + o.getParticles().getValue(), content, top + 162, w, () -> {
+                    ParticlesMode p = o.getParticles().getValue(); o.getParticles().setValue(p == ParticlesMode.MINIMAL ? ParticlesMode.DECREASED : p == ParticlesMode.DECREASED ? ParticlesMode.ALL : ParticlesMode.MINIMAL); saveOptions();
+                });
+                button("Entity distance: " + Math.round(o.getEntityDistanceScaling().getValue() * 100) + "%", content, top + 186, w, () -> {
+                    double value = o.getEntityDistanceScaling().getValue(); o.getEntityDistanceScaling().setValue(value >= 1.0 ? 0.5 : value + 0.25); saveOptions();
+                });
+            } else {
+                button("VSync: " + (o.getEnableVsync().getValue() ? "ON" : "OFF"), content, top + 66, w, () -> { o.getEnableVsync().setValue(!o.getEnableVsync().getValue()); saveOptions(); });
+                button("Clouds: " + o.getCloudRenderMode().getValue(), content, top + 90, w, () -> { o.getCloudRenderMode().setValue(o.getCloudRenderMode().getValue() == CloudRenderMode.OFF ? CloudRenderMode.FAST : CloudRenderMode.OFF); saveOptions(); });
+                button("Smooth lighting: " + (o.getAo().getValue() ? "ON" : "OFF"), content, top + 114, w, () -> { o.getAo().setValue(!o.getAo().getValue()); saveOptions(); });
+                button("FPS counter: " + (ZytheraClient.settings.fps ? "ON" : "OFF"), content, top + 138, w, () -> { ZytheraClient.settings.fps = !ZytheraClient.settings.fps; ZytheraClient.settings.save(); rebuild(); });
+                button("FPS limit: " + o.getMaxFps().getValue(), content, top + 162, w, () -> { int v = o.getMaxFps().getValue(); o.getMaxFps().setValue(v == 30 ? 60 : v == 60 ? 120 : 30); saveOptions(); });
+                button("Reset optimization settings (Potato)", content, top + 186, w, () -> { PerformanceSettings.apply(client, "Potato"); rebuild(); });
+            }
         } else if (page.equals("Settings")) {
             TextFieldWidget url = new TextFieldWidget(textRenderer, content, top + 65, w, 20, Text.literal("YouTube URL"));
             url.setMaxLength(512); url.setText(ZytheraClient.settings.youtubeUrl == null ? "" : ZytheraClient.settings.youtubeUrl);
@@ -83,6 +103,12 @@ public final class ZytheraScreen extends Screen {
         } else if (page.equals("About")) {
             button("Subscribe on YouTube", content, top + 95, w, ZytheraScreen::openYoutube);
         }
+    }
+    private void saveOptions() {
+        client.options.write();
+        ZytheraClient.settings.performanceProfile = "Custom";
+        ZytheraClient.settings.save();
+        rebuild();
     }
     private static void openYoutube() {
         try {
@@ -116,6 +142,11 @@ public final class ZytheraScreen extends Screen {
         ctx.drawTextWithShadow(textRenderer, "Made by JIGNESH_GAMING-k7j", left + 9, top + panelHeight - 15, 0xFFAAAAAA);
         int content = left + Math.min(105, panelWidth / 3) + 12;
         ctx.drawTextWithShadow(textRenderer, page.toUpperCase(Locale.ROOT), content, top + 16, 0xFFFFFFFF);
+        if (page.equals("FPS Boost")) {
+            Runtime runtime = Runtime.getRuntime();
+            String memory = "Memory: " + (runtime.totalMemory() - runtime.freeMemory()) / 1048576 + " / " + runtime.maxMemory() / 1048576 + " MB";
+            ctx.drawTextWithShadow(textRenderer, memory, content, top + 213, 0xFFFFD166);
+        }
         if (page.equals("Settings")) ctx.drawTextWithShadow(textRenderer, "YouTube channel URL (https):", content, top + 50, 0xFFFFFFFF);
         if (page.equals("About")) {
             ctx.drawTextWithShadow(textRenderer, "WELCOME TO ZYTHERA CLIENT", content, top + 45, 0xFFFFD166);
@@ -139,6 +170,6 @@ public final class ZytheraScreen extends Screen {
         return super.mouseDragged(x, y, button, dx, dy);
     }
     @Override public boolean mouseReleased(double x, double y, int button) { if (draggingArmor || draggingText) { draggingArmor = draggingText = false; ZytheraClient.settings.save(); return true; } return super.mouseReleased(x, y, button); }
-    @Override public void close() { ZytheraClient.settings.save(); if (page.equals("Drag")) { page = "HUD Editor"; rebuild(); } else client.setScreen(parent); }
+    @Override public void close() { client.options.write(); ZytheraClient.settings.save(); if (page.equals("Drag")) { page = "HUD Editor"; rebuild(); } else client.setScreen(parent); }
     @Override public boolean shouldPause() { return false; }
 }

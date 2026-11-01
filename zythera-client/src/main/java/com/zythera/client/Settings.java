@@ -13,6 +13,8 @@ public final class Settings {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("zythera-1.20.1.json");
     public boolean armor = true, fps = true, coordinates = true, direction = false, memory = false, clock = false;
+    public boolean optimizationInitialized = false;
+    public String performanceProfile = "Potato";
     public boolean cps = true, ping = true, keystrokes = true, zoom = true;
     public boolean armorVertical = true, armorDurability = true, armorIcons = true;
     public int armorX = 8, armorY = 8, textX = 8, textY = 100;

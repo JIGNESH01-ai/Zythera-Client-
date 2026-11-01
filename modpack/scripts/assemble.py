@@ -12,22 +12,27 @@ source = root / 'modpack'
 output = root / 'modpack-build'
 mods = output / 'mods'
 inputs = {
+    'ferritecore-6.0.1-fabric.jar': ('ferritecore', '6.0.1'),
     'fabric-api-0.92.2+1.20.1.jar': ('fabric-api', '0.92.2+1.20.1'),
     'sodium-fabric-0.5.11+mc1.20.1.jar': ('sodium', '0.5.11'),
     'lithium-fabric-mc1.20.1-0.11.4.jar': ('lithium', '0.11.4'),
-    'zythera-client-0.3.0.jar': ('zythera', '0.3.0'),
+    'zythera-client-0.4.0.jar': ('zythera', '0.4.0'),
 }
 if output.exists():
     shutil.rmtree(output)
 mods.mkdir(parents=True)
 for name in ('config', 'resourcepacks', 'licenses'):
     shutil.copytree(source / name, output / name)
-for name in ('INSTALL.txt', 'THIRD-PARTY-NOTICES.txt', 'ZYTHERA-LICENSE.txt', 'options.txt'):
+for name in ('INSTALL.txt', 'THIRD-PARTY-NOTICES.txt', 'ZYTHERA-LICENSE.txt', 'options.txt', 'COMPATIBILITY.md'):
     shutil.copy2(source / name, output / name)
 for name, (mod_id, version) in inputs.items():
     origin = Path(sys.argv[1]) / name
     if not origin.is_file():
         raise SystemExit(f'Missing required dependency: {origin}')
+    if name == 'ferritecore-6.0.1-fabric.jar':
+        expected = '9b7dc686bfa7937815d88c7bbc6908857cd6646b05e7a96ddbdcada328a385bd4ba056532cd1d7df9d2d7f4265fd48bd49ff683f217f6d4e817177b87f6bc457'
+        if hashlib.sha512(origin.read_bytes()).hexdigest() != expected:
+            raise SystemExit('FerriteCore checksum mismatch')
     with zipfile.ZipFile(origin) as jar:
         metadata = json.loads(jar.read('fabric.mod.json'))
         if metadata.get('id') != mod_id or not str(metadata.get('version', '')).startswith(version):
@@ -38,7 +43,7 @@ for name, (mod_id, version) in inputs.items():
 with (output / 'SHA256SUMS.txt').open('w', encoding='utf-8') as checksums:
     for jar in sorted(mods.glob('*.jar')):
         checksums.write(hashlib.sha256(jar.read_bytes()).hexdigest() + '  mods/' + jar.name + '\n')
-archive = root / 'zythera-modpack-1.20.1-v0.3.0-alpha.zip'
+archive = root / 'zythera-modpack-1.20.1-v0.4.0-alpha.zip'
 with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=6) as z:
     for path in sorted(output.rglob('*')):
         if path.is_file():

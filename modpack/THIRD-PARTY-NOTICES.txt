@@ -13,3 +13,7 @@ Source, distribution terms and license: https://github.com/CaffeineMC/sodium/tre
 Release: https://github.com/CaffeineMC/sodium/releases/tag/mc1.20.1-0.5.11
 
 Minecraft, Fabric Loader, PojavLauncher and Java are not distributed in this ZIP. The Zythera Client source is part of the parent repository; see its LICENSE and NOTICE.
+
+FerriteCore 6.0.1 for Fabric: MIT license
+Source and license: https://github.com/malte0811/FerriteCore/tree/build-6.0.1
+Release metadata: https://modrinth.com/mod/ferrite-core/version/unerR5MN

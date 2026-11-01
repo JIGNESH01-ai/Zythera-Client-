@@ -1,6 +1,7 @@
 package com.zythera.client.mixin;
 
 import net.minecraft.client.gui.DrawContext;
+import com.zythera.client.PerformanceSettings;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.text.Text;
@@ -37,6 +38,16 @@ public abstract class TitleScreenMixin extends Screen {
         ctx.drawTextWithShadow(textRenderer, "Subscribe on YouTube", 6, height - 12, 0xffffffff);
         // Opt-in CI smoke test: reaching here proves the title screen rendered.
         if ("1".equals(System.getenv("ZYTHERA_SMOKE_TEST"))) {
+            PerformanceSettings.apply(client, "Potato");
+            if (client.options.getViewDistance().getValue() != 2 || client.options.getSimulationDistance().getValue() != 2)
+                throw new IllegalStateException("Potato chunk settings rejected: " + client.options.getViewDistance().getValue() + "/" + client.options.getSimulationDistance().getValue());
+            PerformanceSettings.apply(client, "Balanced");
+            if (client.options.getViewDistance().getValue() != 6 || client.options.getSimulationDistance().getValue() != 4)
+                throw new IllegalStateException("Balanced chunk settings rejected");
+            PerformanceSettings.apply(client, "Smooth FPS");
+            if (client.options.getMaxFps().getValue() != 60) throw new IllegalStateException("Smooth FPS setting rejected");
+            PerformanceSettings.apply(client, "Potato");
+            System.out.println("[Zythera] SMOKE_PROFILES_OK");
             System.out.println("[Zythera] SMOKE_TITLE_RENDERED");
             client.scheduleStop();
         }
