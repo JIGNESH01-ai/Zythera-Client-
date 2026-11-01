@@ -37,7 +37,19 @@ public abstract class TitleScreenMixin extends Screen {
         ctx.drawTextWithShadow(textRenderer, "Made by JIGNESH_GAMING-k7j", 6, height - 23, 0xffffd166);
         ctx.drawTextWithShadow(textRenderer, "Subscribe on YouTube", 6, height - 12, 0xffffffff);
         // Opt-in CI smoke test: reaching here proves the title screen rendered.
-        if ("1".equals(System.getenv("ZYTHERA_SMOKE_TEST"))) {
+        String smoke = System.getenv("ZYTHERA_SMOKE_TEST");
+        if ("restart".equals(smoke) || "custom".equals(smoke)) {
+            int expected = "restart".equals(smoke) ? 2 : 3;
+            if (client.options.getViewDistance().getValue() != expected || client.options.getSimulationDistance().getValue() != expected)
+                throw new IllegalStateException("Restart option check failed: " + client.options.getViewDistance().getValue() + "/" + client.options.getSimulationDistance().getValue());
+            if ("restart".equals(smoke)) {
+                client.options.getViewDistance().setValue(3);
+                client.options.getSimulationDistance().setValue(3);
+                client.options.write();
+            }
+            System.out.println("[Zythera] SMOKE_RESTART_OK " + smoke);
+            client.scheduleStop();
+        } else if ("1".equals(smoke)) {
             PerformanceSettings.apply(client, "Potato");
             if (client.options.getViewDistance().getValue() != 2 || client.options.getSimulationDistance().getValue() != 2)
                 throw new IllegalStateException("Potato chunk settings rejected: " + client.options.getViewDistance().getValue() + "/" + client.options.getSimulationDistance().getValue());
