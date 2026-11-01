@@ -29,7 +29,7 @@ jobs:
           path: zythera-client/build/libs/zythera-client-*.jar
           if-no-files-found: error
   release:
-    if: github.event_name == 'workflow_dispatch' && inputs.release_tag != ''
+    if: (github.event_name == 'workflow_dispatch' && inputs.release_tag != '') || (github.event_name == 'push' && github.ref == 'refs/heads/arena/47736e62-zythera-client')
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -37,7 +37,7 @@ jobs:
     steps:
       - name: Validate release tag
         env:
-          RELEASE_TAG: ${{ inputs.release_tag }}
+          RELEASE_TAG: ${{ inputs.release_tag || 'zythera-1.20.1-v0.1.0-alpha' }}
         run: |
           [[ "$RELEASE_TAG" =~ ^zythera-1\.20\.1-v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$ ]] || { echo 'Invalid release tag' >&2; exit 1; }
       - uses: actions/download-artifact@v4
@@ -48,6 +48,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          RELEASE_TAG: ${{ inputs.release_tag }}
+          RELEASE_TAG: ${{ inputs.release_tag || 'zythera-1.20.1-v0.1.0-alpha' }}
           TARGET_SHA: ${{ github.sha }}
-        run: gh release create "$RELEASE_TAG" artifacts/zythera-client-*.jar --target "$TARGET_SHA" --title "Zythera Client $RELEASE_TAG" --notes 'Fabric 1.20.1 development build. See zythera-client/README.md for installation and limitations.' --prerelease
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Release $RELEASE_TAG already exists; not replacing it."
+            exit 0
+          fi
+          gh release create "$RELEASE_TAG" artifacts/zythera-client-0.1.0.jar --target "$TARGET_SHA" --title "Zythera Client $RELEASE_TAG" --notes 'Experimental Fabric 1.20.1 client-side mod. Compiled in GitHub Actions, but not tested in Minecraft or PojavLauncher. Requires Java 17, Fabric Loader 0.15.11+ and Fabric API 0.92.2+1.20.1. This is not a modpack. See zythera-client/README.md for limitations.' --prerelease
