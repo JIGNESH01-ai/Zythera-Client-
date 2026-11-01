@@ -19,10 +19,14 @@ Armor/offhand icons and durability, configurable vertical/horizontal layout, FPS
 
 ## Compatibility and limitations
 
-Only **1.20.1** is targeted. 1.21.1, 1.21.11, 26.1, 26.2 and 26.3 are not implemented or verified; they need separate mapped builds and dependency checks. There are no compatibility guarantees for third-party optimization mods or Android renderers. The other requested HUD/PvP/visual modules, per-element scaling/color editor, profiles, custom Mojang loading screen, a fully replaced main menu, animated logo and full Android-specific optimizations are not implemented. The FPS presets are vanilla settings, not a modpack. Never add optimization JARs without checking each mod's Minecraft, Fabric and renderer compatibility and license.
+Only **1.20.1** is targeted. 1.21.1, 1.21.11, 26.1, 26.2 and 26.3 are not implemented or verified; they need separate mapped builds and dependency checks. There are no compatibility guarantees for third-party optimization mods or Android renderers. The other requested HUD/PvP/visual modules, per-element scaling/color editor, profiles, a fully replaced main menu, animated logo and full Android-specific optimizations are not implemented. The FPS presets are vanilla settings, not a modpack. Never add optimization JARs without checking each mod's Minecraft, Fabric and renderer compatibility and license.
 
 Build with JDK 17: `./zythera-client/gradlew -p zythera-client build` from the repository root. The build needs access to Gradle, Mojang and Fabric Maven repositories.
 
 ## Builds and releases
 
 The workflow builds and uploads JAR artifacts on relevant pushes and pull requests. To publish a **prerelease** after reviewing the build, run the “Zythera Fabric client” workflow manually from the Actions tab with a new tag such as `zythera-1.20.1-v0.1.0`. GitHub requires the workflow to exist on the default branch for manual dispatch. The release job runs only after the build succeeds and requires Actions to have permission to create releases. A successful compile alone does not establish in-game or Android compatibility.
+
+## Resource loading screen
+
+The Fabric client overlays the Minecraft resource-reload screen with Zythera artwork and the reload monitor’s real progress. Minecraft still controls reload completion and error handling. It is not a world/terrain loading progress indicator; the game does not expose a single equivalent progress value there. The artwork is derived from the creator-provided reference. This feature has not yet been tested in-game or with PojavLauncher.
