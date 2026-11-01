@@ -1,0 +1,53 @@
+name: Zythera Fabric client
+on:
+  push:
+    paths: ['zythera-client/**', '.github/workflows/zythera-client.yml']
+  pull_request:
+    paths: ['zythera-client/**', '.github/workflows/zythera-client.yml']
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Optional new release tag (e.g. zythera-1.20.1-v0.1.0); leave blank for a build only'
+        required: false
+        type: string
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./zythera-client/gradlew -p zythera-client --no-daemon build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zythera-fabric-1.20.1
+          path: zythera-client/build/libs/zythera-client-*.jar
+          if-no-files-found: error
+  release:
+    if: github.event_name == 'workflow_dispatch' && inputs.release_tag != ''
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Validate release tag
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          [[ "$RELEASE_TAG" =~ ^zythera-1\.20\.1-v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$ ]] || { echo 'Invalid release tag' >&2; exit 1; }
+      - uses: actions/download-artifact@v4
+        with:
+          name: zythera-fabric-1.20.1
+          path: artifacts
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          TARGET_SHA: ${{ github.sha }}
+        run: gh release create "$RELEASE_TAG" artifacts/zythera-client-*.jar --target "$TARGET_SHA" --title "Zythera Client $RELEASE_TAG" --notes 'Fabric 1.20.1 development build. See zythera-client/README.md for installation and limitations.' --prerelease

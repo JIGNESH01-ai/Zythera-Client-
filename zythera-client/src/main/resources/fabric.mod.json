@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "zythera",
+  "version": "${version}",
+  "name": "Zythera Client",
+  "description": "A lightweight client-side HUD and performance toolkit.",
+  "environment": "client",
+  "entrypoints": { "client": ["com.zythera.client.ZytheraClient"] },
+  "depends": { "fabricloader": ">=0.15.11", "minecraft": "~1.20.1", "java": ">=17", "fabric-api": "*" }
+}
