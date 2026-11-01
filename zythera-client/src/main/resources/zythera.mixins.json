@@ -3,6 +3,13 @@
   "minVersion": "0.8",
   "package": "com.zythera.client.mixin",
   "compatibilityLevel": "JAVA_17",
-  "client": ["SplashOverlayMixin"],
-  "injectors": { "defaultRequire": 1 }
+  "client": [
+    "SplashOverlayMixin",
+    "MouseMixin",
+    "GameRendererMixin",
+    "TitleScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

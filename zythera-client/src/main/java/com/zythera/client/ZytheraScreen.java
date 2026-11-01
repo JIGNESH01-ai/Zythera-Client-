@@ -15,6 +15,7 @@ public final class ZytheraScreen extends Screen {
     private final Screen parent;
     private String page = "Mods", query = "";
     private boolean draggingArmor, draggingText;
+    private int modsPage;
     private int dragX, dragY;
     private TextFieldWidget search;
     private int left, top, panelWidth, panelHeight;
@@ -38,13 +39,21 @@ public final class ZytheraScreen extends Screen {
             search.setChangedListener(value -> { query = value; rebuild(); if (search != null) { setFocused(search); search.setCursorToEnd(); } });
             addDrawableChild(search);
             Settings s = ZytheraClient.settings;
-            int y = top + 68;
+            button(modsPage == 0 ? "More modules >" : "< Previous modules", content, top + 66, w, () -> { modsPage = 1 - modsPage; rebuild(); });
+            int y = top + 90;
+            if (modsPage == 0) {
             y = toggle("Armor HUD", s.armor, () -> s.armor = !s.armor, content, y, w);
             y = toggle("FPS Counter", s.fps, () -> s.fps = !s.fps, content, y, w);
             y = toggle("Coordinates", s.coordinates, () -> s.coordinates = !s.coordinates, content, y, w);
             y = toggle("Direction", s.direction, () -> s.direction = !s.direction, content, y, w);
             y = toggle("Memory", s.memory, () -> s.memory = !s.memory, content, y, w);
             toggle("Clock", s.clock, () -> s.clock = !s.clock, content, y, w);
+            } else {
+                y = toggle("CPS Counter", s.cps, () -> s.cps = !s.cps, content, y, w);
+                y = toggle("Ping", s.ping, () -> s.ping = !s.ping, content, y, w);
+                y = toggle("Keystrokes", s.keystrokes, () -> s.keystrokes = !s.keystrokes, content, y, w);
+                toggle("Zoom (hold C)", s.zoom, () -> s.zoom = !s.zoom, content, y, w);
+            }
         } else if (page.equals("HUD Editor")) {
             button("Drag HUD elements on screen", content, top + 50, w, () -> { page = "Drag"; rebuild(); });
             button("Reset positions", content, top + 75, w, () -> { Settings s = ZytheraClient.settings; s.armorX = 8; s.armorY = 8; s.textX = 8; s.textY = 100; s.save(); });

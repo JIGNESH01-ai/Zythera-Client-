@@ -24,10 +24,22 @@ import java.util.List;
 
 public final class ZytheraClient implements ClientModInitializer {
     public static Settings settings;
-    private static KeyBinding menu;
+    private static KeyBinding menu, zoomKey;
+    private static final java.util.ArrayDeque<Long> leftClicks = new java.util.ArrayDeque<>();
+    public static void recordLeftClick() { if (settings != null && settings.cps) { clicksPerSecond(); leftClicks.addLast(System.nanoTime()); } }
+    private static int clicksPerSecond() {
+        long cutoff = System.nanoTime() - 1_000_000_000L;
+        while (!leftClicks.isEmpty() && leftClicks.peekFirst() < cutoff) leftClicks.removeFirst();
+        return leftClicks.size();
+    }
+    public static boolean isZooming() {
+        MinecraftClient client = MinecraftClient.getInstance();
+        return settings != null && settings.zoom && zoomKey != null && zoomKey.isPressed() && client.currentScreen == null && client.player != null;
+    }
     @Override public void onInitializeClient() {
         settings = Settings.load();
         menu = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.zythera.menu", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, "category.zythera"));
+        zoomKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.zythera.zoom", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_C, "category.zythera"));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (menu.wasPressed()) client.setScreen(new ZytheraScreen(client.currentScreen));
         });
@@ -76,7 +88,19 @@ public final class ZytheraClient implements ClientModInitializer {
         if (s.coordinates) { line(ctx, client, String.format(java.util.Locale.ROOT, "XYZ: %.1f / %.1f / %.1f", client.player.getX(), client.player.getY(), client.player.getZ()), s.textX, y); y += 11; }
         if (s.direction) { line(ctx, client, "Direction: " + client.player.getHorizontalFacing().getName(), s.textX, y); y += 11; }
         if (s.memory) { Runtime r = Runtime.getRuntime(); line(ctx, client, "Memory: " + ((r.totalMemory() - r.freeMemory()) / 1048576) + " MB", s.textX, y); y += 11; }
-        if (s.clock) line(ctx, client, LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")), s.textX, y);
+        if (s.clock) { line(ctx, client, LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")), s.textX, y); y += 11; }
+        if (s.cps) { line(ctx, client, "CPS: " + clicksPerSecond(), s.textX, y); y += 11; }
+        if (s.ping) {
+            var handler = client.getNetworkHandler();
+            var entry = handler == null ? null : handler.getPlayerListEntry(client.player.getUuid());
+            line(ctx, client, "Ping: " + (client.isInSingleplayer() || entry == null ? "N/A" : entry.getLatency() + " ms"), s.textX, y); y += 11;
+        }
+        if (s.keystrokes) {
+            line(ctx, client, "Keys: " + (client.options.forwardKey.isPressed() ? "W " : "- ")
+                + (client.options.leftKey.isPressed() ? "A " : "- ")
+                + (client.options.backKey.isPressed() ? "S " : "- ")
+                + (client.options.rightKey.isPressed() ? "D" : "-"), s.textX, y);
+        }
     }
     private static void line(DrawContext ctx, MinecraftClient client, String text, int x, int y) { ctx.drawTextWithShadow(client.textRenderer, text, x, y, settings.color); }
 }

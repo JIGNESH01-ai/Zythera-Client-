@@ -162,3 +162,7 @@ Licensed under the **GNU LGPL v3.0** — see [LICENSE](LICENSE). Read our [Priva
 ## Zythera Client (Fabric mod)
 
 A separate work-in-progress Minecraft-side Fabric mod is available in [`zythera-client/`](zythera-client/README.md). It targets Minecraft 1.20.1 and is independent of the Android launcher build. See its README for installation, implemented features, and limitations.
+
+### Zythera 1.20.1 modpack
+
+See [`modpack/`](modpack/README.md) for the experimental Fabric modpack, its contents, installation steps and compatibility limitations.

@@ -1,0 +1,14 @@
+ZYTHERA CLIENT 1.20.1 — EXPERIMENTAL FABRIC MODPACK
+Made by JIGNESH_GAMING-k7j | Subscribe on YouTube
+
+This ZIP is NOT an Android APK, Minecraft installer, or a complete game. It does not contain Minecraft, Fabric Loader, Java, or a launcher. You need a legitimately installed Minecraft Java Edition account, a compatible PojavLauncher Legacy installation, a working Java 17 runtime and Fabric Loader 0.15.11+ for Minecraft 1.20.1.
+
+1. Back up your existing Minecraft profile, worlds, mods, configs, resource packs and options. Ideally create a separate game directory for this pack.
+2. In PojavLauncher select/install Minecraft 1.20.1 and Fabric Loader 0.15.11 or newer, and select a Java 17 runtime. Run the profile once and close the game.
+3. Extract this ZIP to a temporary folder. Copy its mods, config and resourcepacks folders into that profile's Minecraft game directory (the folder that contains the profile's mods folder). Do not nest the top-level ZIP folder inside mods. Avoid overwriting existing config files you want to keep; remove old duplicate Fabric API, Lithium, Sodium and Zythera versions first.
+4. Choose an appropriate Pojav OpenGL renderer for your device. Sodium may not work with all Pojav renderers: if launch fails, remove the Sodium JAR and retry; Zythera and Lithium do not require Sodium. The pack is not validated on Pojav, Android 9 or any specific 3GB phone.
+5. Set memory in the launcher, not in this pack. On a 3GB device start conservatively (e.g. around 1 GB) and leave memory for Android; the appropriate value varies. Start the game. In Zythera Mods > FPS Boost choose Potato to set render distance, particles and FPS. Do not install desktop-only shader packs.
+6. Open Zythera with Right Shift (map a Pojav touch control to this key) or the Zythera Mods button on the pause/title screen. Hold C for zoom (rebind in Controls). Minecraft's built-in Accessibility Settings > Sprint: Toggle provides toggle sprint. CPS reflects left mouse press events, and Ping uses the server's player-list latency (N/A in singleplayer). Map appropriate Pojav touch controls to keyboard/mouse actions.
+7. To customize the creator link, open Zythera Mods > Settings and enter a valid HTTPS YouTube URL. This pack does not guess the creator's channel URL. Resourcepacks/Zythera-Extras is an empty placeholder; the mod provides the loading/menu visuals automatically.
+
+This is an early development pack: build/packaging checks are not gameplay, multiplayer, Android or renderer compatibility tests. Loading progress covers resource reload, not world/terrain generation. HUD layout/dragging is group-based; the module manager controls Zythera features, not third-party JAR installation. No performance guarantee. Check server rules before using zoom/toggle sprint.

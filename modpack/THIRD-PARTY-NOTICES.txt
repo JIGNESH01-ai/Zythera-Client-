@@ -1,0 +1,15 @@
+Included third-party components (see the JARs for license notices and complete terms):
+
+Fabric API 0.92.2+1.20.1: Apache-2.0
+Source and license: https://github.com/FabricMC/fabric-api/tree/0.92.2%2B1.20.1
+Release: https://github.com/FabricMC/fabric-api/releases/tag/0.92.2%2B1.20.1
+
+Lithium 0.11.4 for Minecraft 1.20.1: LGPL-3.0-or-later
+Source and license: https://github.com/CaffeineMC/lithium/tree/mc1.20.1-0.11.4
+Release: https://github.com/CaffeineMC/lithium/releases/tag/mc1.20.1-0.11.4
+
+Sodium 0.5.11 for Minecraft 1.20.1
+Source, distribution terms and license: https://github.com/CaffeineMC/sodium/tree/mc1.20.1-0.5.11
+Release: https://github.com/CaffeineMC/sodium/releases/tag/mc1.20.1-0.5.11
+
+Minecraft, Fabric Loader, PojavLauncher and Java are not distributed in this ZIP. The Zythera Client source is part of the parent repository; see its LICENSE and NOTICE.

@@ -27,3 +27,8 @@ fs-manager-udroid/
 
 # Agent local skills
 .agents/
+
+# Generated Zythera modpack outputs
+/modpack-build/
+/inputs/
+/zythera-modpack-*.zip
