@@ -70,6 +70,12 @@ jobs:
           grep -F '[Zythera] SMOKE_PROFILES_OK' smoke.log
           grep -Fx 'renderDistance:2' zythera-client/run/options.txt
           grep -Fx 'simulationDistance:2' zythera-client/run/options.txt
+      - name: Inspect 1.20.1 simulation option on failure
+        if: failure()
+        run: |
+          jar=$(find "$HOME/.gradle/caches/fabric-loom" -type f -name 'minecraft-merged-*.jar' | grep 'yarn' | head -1)
+          javap -p -c -classpath "$jar" net.minecraft.client.option.GameOptions > /tmp/zythera-options-bytecode
+          python3 -c 'from pathlib import Path; s=Path("/tmp/zythera-options-bytecode").read_text(); p=s.find("options.simulationDistance"); print("::notice title=Simulation option bytecode::"+s[max(0,p-350):p+2000].replace("%","%25").replace("\n","%0A"))'
       - name: Report smoke log on failure
         if: failure()
         run: |
