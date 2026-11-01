@@ -51,7 +51,7 @@ jobs:
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
       - name: Install headless graphics dependencies
-        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri libopenal1
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri libopenal1 flite1-dev
       - name: Launch development client to rendered title screen
         env:
           ZYTHERA_SMOKE_TEST: '1'
@@ -59,14 +59,14 @@ jobs:
           ALSOFT_DRIVERS: 'null'
         run: |
           set -o pipefail
-          timeout 240 xvfb-run -a ./zythera-client/gradlew -p zythera-client --no-daemon runClient 2>&1 | tee smoke.log
+          timeout 180 xvfb-run -a ./zythera-client/gradlew -p zythera-client --no-daemon runClient 2>&1 | tee smoke.log
           grep -F '[Zythera] SMOKE_SPLASH_RENDERED artwork=true' smoke.log
           grep -F '[Zythera] SMOKE_TITLE_RENDERED' smoke.log
       - name: Report smoke log on failure
         if: failure()
         run: |
           if [ -f smoke.log ]; then
-            python3 -c 'from pathlib import Path; s="\n".join(x[:300] for x in Path("smoke.log").read_text(errors="replace").splitlines()[-100:]); print("::error title=Smoke test log::"+s.replace("%","%25").replace("\r","%0D").replace("\n","%0A"))'
+            python3 -c 'from pathlib import Path; s="\n".join(x[:150] for x in Path("smoke.log").read_text(errors="replace").splitlines()[-20:]); print("::error title=Smoke test log::"+s.replace("%","%25").replace("\r","%0D").replace("\n","%0A"))'
           fi
       - uses: actions/upload-artifact@v4
         if: always()
