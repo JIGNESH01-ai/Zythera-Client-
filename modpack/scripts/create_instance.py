@@ -7,11 +7,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 PACK = ROOT / 'modpack-build'
-OUTPUT = ROOT / 'zythera-client-1.20.1-v0.5.1-alpha.mrpack'
+OUTPUT = ROOT / 'zythera-client-1.20.1-v0.5.2-alpha.mrpack'
 MANIFEST = {
     'formatVersion': 1,
     'game': 'minecraft',
-    'versionId': '0.5.1-alpha',
+    'versionId': '0.5.2-alpha',
     'name': 'Zythera Client',
     'summary': 'Gold and black Fabric client by JIGNESH_GAMING-k7j',
     # Bundled mods are overrides, so imports need not download the mod JARs.
@@ -19,11 +19,11 @@ MANIFEST = {
     'dependencies': {'minecraft': '1.20.1', 'fabric-loader': '0.15.11'},
 }
 required = [
-    'mods/zythera-client-0.5.1.jar',
+    'mods/zythera-client-0.5.2.jar',
     'mods/fabric-api-0.92.2+1.20.1.jar',
     'mods/lithium-fabric-mc1.20.1-0.11.4.jar',
     'mods/ferritecore-6.0.1-fabric.jar',
-    'mods/sodium-fabric-0.5.11+mc1.20.1.jar',
+    'mods/sodium-fabric-0.5.21+mc1.20.1.jar',
     'config/zythera-1.20.1.json', 'options.txt',
     'resourcepacks/Zythera-Extras/pack.mcmeta', 'INSTALL.txt',
 ]
