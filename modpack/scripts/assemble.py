@@ -14,7 +14,7 @@ mods = output / 'mods'
 inputs = {
     'ferritecore-6.0.1-fabric.jar': ('ferritecore', '6.0.1'),
     'fabric-api-0.92.2+1.20.1.jar': ('fabric-api', '0.92.2+1.20.1'),
-    'sodium-fabric-0.5.21+mc1.20.1.jar': ('sodium', '0.5.21'),
+    'sodium-fabric-0.5.11+mc1.20.1.jar': ('sodium', '0.5.11'),
     'lithium-fabric-mc1.20.1-0.11.4.jar': ('lithium', '0.11.4'),
     'zythera-client-0.5.2.jar': ('zythera', '0.5.2'),
 }

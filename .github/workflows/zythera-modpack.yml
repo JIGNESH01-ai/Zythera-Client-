@@ -25,7 +25,7 @@ jobs:
           mkdir -p inputs
           cp zythera-client/build/libs/zythera-client-0.5.2.jar inputs/
           curl --fail --location --retry 3 -o 'inputs/fabric-api-0.92.2+1.20.1.jar' 'https://github.com/FabricMC/fabric-api/releases/download/0.92.2%2B1.20.1/fabric-api-0.92.2%2B1.20.1.jar'
-          curl --fail --location --retry 3 -o 'inputs/sodium-fabric-0.5.21+mc1.20.1.jar' 'https://github.com/CaffeineMC/sodium/releases/download/mc1.20.1-0.5.21/sodium-fabric-0.5.21%2Bmc1.20.1.jar'
+          curl --fail --location --retry 3 -o 'inputs/sodium-fabric-0.5.11+mc1.20.1.jar' 'https://github.com/CaffeineMC/sodium/releases/download/mc1.20.1-0.5.11/sodium-fabric-0.5.11%2Bmc1.20.1.jar'
           curl --fail --location --retry 3 -o 'inputs/ferritecore-6.0.1-fabric.jar' 'https://cdn.modrinth.com/data/uXXizFIs/versions/unerR5MN/ferritecore-6.0.1-fabric.jar'
           curl --fail --location --retry 3 -o 'inputs/lithium-fabric-mc1.20.1-0.11.4.jar' 'https://github.com/CaffeineMC/lithium/releases/download/mc1.20.1-0.11.4/lithium-fabric-mc1.20.1-0.11.4.jar'
       - name: Verify inputs and assemble both archive formats

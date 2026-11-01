@@ -23,7 +23,7 @@ required = [
     'mods/fabric-api-0.92.2+1.20.1.jar',
     'mods/lithium-fabric-mc1.20.1-0.11.4.jar',
     'mods/ferritecore-6.0.1-fabric.jar',
-    'mods/sodium-fabric-0.5.21+mc1.20.1.jar',
+    'mods/sodium-fabric-0.5.11+mc1.20.1.jar',
     'config/zythera-1.20.1.json', 'options.txt',
     'resourcepacks/Zythera-Extras/pack.mcmeta', 'INSTALL.txt',
 ]
