@@ -78,7 +78,8 @@ public abstract class SplashOverlayMixin {
             int h = height / 5 + (i * 47 % Math.max(1, height / 4));
             ctx.fill(x, height - h, x + Math.max(2, width / 28), height, 0xff1b1024);
         }
-        int barLimit = height - (height >= 145 ? 57 : height >= 125 ? 39 : 28);
+        if (width >= 200) zythera$center(ctx, "FPS: " + client.getCurrentFps(), 38, 3, 70, 0xffd166);
+        int barLimit = height - (height >= 170 ? 68 : height >= 145 ? 57 : height >= 125 ? 39 : 28);
         int artY = 16;
         int maxArtHeight = Math.max(0, barLimit - artY - 17);
         int artWidth = Math.max(1, Math.min(width - 16, Math.min(640, maxArtHeight * 1024 / 417)));
@@ -120,6 +121,7 @@ public abstract class SplashOverlayMixin {
             zythera$center(ctx, tip, width / 2, barY + 35, width - 12, 0xffd166);
         }
         if (height >= 145) {
+            if (height >= 170) zythera$center(ctx, "Optimized for Low End Devices", width / 2, height - 33, width - 12, 0xffd166);
             zythera$center(ctx, "Made by JIGNESH_GAMING-k7j", width / 2, height - 22, width - 12, 0xffffff);
             zythera$center(ctx, "Subscribe on YouTube", width / 2, height - 11, width - 12, 0xffd166);
         }
