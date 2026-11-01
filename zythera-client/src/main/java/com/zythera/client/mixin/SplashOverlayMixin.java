@@ -33,6 +33,7 @@ public abstract class SplashOverlayMixin {
         "Tip: Lower render distance to improve performance.",
         "Tip: Enjoy your gameplay with Zythera Client!"
     };
+    @Unique private boolean zythera$smokeLogged;
     @Unique private boolean zythera$textureAttempted;
     @Unique private boolean zythera$textureReady;
 
@@ -80,6 +81,10 @@ public abstract class SplashOverlayMixin {
             ctx.getMatrices().pop();
         } else {
             ctx.drawCenteredTextWithShadow(client.textRenderer, "ZYTHERA CLIENT", width / 2, artY + 15, zythera$color(alpha, 0xffd34e));
+        }
+        if (!zythera$smokeLogged && "1".equals(System.getenv("ZYTHERA_SMOKE_TEST"))) {
+            zythera$smokeLogged = true;
+            System.out.println("[Zythera] SMOKE_SPLASH_RENDERED artwork=" + zythera$textureReady);
         }
         float progress = MathHelper.clamp(reload.getProgress(), 0.0f, 1.0f);
         int barWidth = Math.max(1, Math.min(width - 30, 410));

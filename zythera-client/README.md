@@ -30,3 +30,7 @@ The workflow builds and uploads JAR artifacts on relevant pushes and pull reques
 ## Resource loading screen
 
 The Fabric client overlays the Minecraft resource-reload screen with Zythera artwork and the reload monitor’s real progress. Minecraft still controls reload completion and error handling. It is not a world/terrain loading progress indicator; the game does not expose a single equivalent progress value there. The artwork is derived from the creator-provided reference. This feature has not yet been tested in-game or with PojavLauncher.
+
+## Installable instance
+
+See [the modpack project](../modpack/README.md) for the Modrinth-format import archive, manual fallback, bundled dependencies, and Android limitations.

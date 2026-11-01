@@ -32,3 +32,5 @@ fs-manager-udroid/
 /modpack-build/
 /inputs/
 /zythera-modpack-*.zip
+/zythera-client-*.mrpack
+/zythera-client-*.zip

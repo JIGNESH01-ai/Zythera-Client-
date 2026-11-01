@@ -55,4 +55,4 @@ jobs:
             echo "Release $RELEASE_TAG already exists; not replacing it."
             exit 0
           fi
-          gh release create "$RELEASE_TAG" artifacts/zythera-client-0.1.0.jar --target "$TARGET_SHA" --title "Zythera Client $RELEASE_TAG" --notes 'Experimental Fabric 1.20.1 client-side mod. Compiled in GitHub Actions, but not tested in Minecraft or PojavLauncher. Requires Java 17, Fabric Loader 0.15.11+ and Fabric API 0.92.2+1.20.1. This is not a modpack. See zythera-client/README.md for limitations.' --prerelease
+          gh release create "$RELEASE_TAG" artifacts/zythera-client-0.3.0.jar --target "$TARGET_SHA" --title "Zythera Client $RELEASE_TAG" --notes 'Experimental Fabric 1.20.1 client-side mod. Compiled in GitHub Actions, but not tested in Minecraft or PojavLauncher. Requires Java 17, Fabric Loader 0.15.11+ and Fabric API 0.92.2+1.20.1. This is not a modpack. See zythera-client/README.md for limitations.' --prerelease

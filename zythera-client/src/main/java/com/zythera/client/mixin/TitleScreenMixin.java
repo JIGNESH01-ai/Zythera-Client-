@@ -35,6 +35,11 @@ public abstract class TitleScreenMixin extends Screen {
         super.render(ctx, mouseX, mouseY, delta);
         ctx.drawTextWithShadow(textRenderer, "Made by JIGNESH_GAMING-k7j", 6, height - 23, 0xffffd166);
         ctx.drawTextWithShadow(textRenderer, "Subscribe on YouTube", 6, height - 12, 0xffffffff);
+        // Opt-in CI smoke test: reaching here proves the title screen rendered.
+        if ("1".equals(System.getenv("ZYTHERA_SMOKE_TEST"))) {
+            System.out.println("[Zythera] SMOKE_TITLE_RENDERED");
+            client.scheduleStop();
+        }
         ci.cancel();
     }
 }
