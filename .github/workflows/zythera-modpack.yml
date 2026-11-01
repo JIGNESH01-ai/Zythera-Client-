@@ -86,7 +86,7 @@ jobs:
         if: failure()
         run: |
           if [ -f smoke.log ]; then
-            python3 -c 'from pathlib import Path; s="\n".join(x[:250] for x in [l for l in Path("smoke.log").read_text(errors="replace").splitlines() if any(k in l for k in ("Exception", "Error", "rejected", "Caused by"))][-12:]); print("::error title=Smoke test log::"+s.replace("%","%25").replace("\r","%0D").replace("\n","%0A"))'
+            python3 -c 'from pathlib import Path; s="\n".join(x[:250] for x in [l for l in Path("smoke.log").read_text(errors="replace").splitlines() if any(k in l for k in ("Exception", "Error", "rejected", "Caused by", "SMOKE_"))][-12:]); print("::error title=Smoke test log::"+s.replace("%","%25").replace("\r","%0D").replace("\n","%0A"))'
           fi
       - uses: actions/upload-artifact@v4
         if: always()
