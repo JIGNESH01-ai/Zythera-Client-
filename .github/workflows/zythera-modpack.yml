@@ -57,8 +57,12 @@ jobs:
           ZYTHERA_SMOKE_TEST: '1'
           LIBGL_ALWAYS_SOFTWARE: '1'
           ALSOFT_DRIVERS: 'null'
+          ALSA_CONFIG_PATH: /tmp/zythera-asound.conf
         run: |
           set -o pipefail
+          mkdir -p zythera-client/run
+          printf 'onboardAccessibility:false\nnarrator:0\n' > zythera-client/run/options.txt
+          printf 'pcm.!default { type null }\nctl.!default { type hw card 0 }\n' > /tmp/zythera-asound.conf
           timeout 180 xvfb-run -a ./zythera-client/gradlew -p zythera-client --no-daemon runClient 2>&1 | tee smoke.log
           grep -F '[Zythera] SMOKE_SPLASH_RENDERED artwork=true' smoke.log
           grep -F '[Zythera] SMOKE_TITLE_RENDERED' smoke.log
