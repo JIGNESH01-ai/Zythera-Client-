@@ -64,7 +64,7 @@ public abstract class TitleScreenMixin extends Screen {
         zythera$image(ctx, ART, new TextureLayout.Placement((width - 970 * logo.scale()) / 2, 15, logo.scale()), 970, 425);
         super.render(ctx, mouseX, mouseY, delta);
         ctx.drawTextWithShadow(textRenderer, "FPS: " + client.getCurrentFps(), 6, 6, 0xffffffff);
-        String version = "Zythera Client 0.5.3";
+        String version = "Zythera Client " + FabricLoader.getInstance().getModContainer("zythera").map(m -> m.getMetadata().getVersion().getFriendlyString()).orElse("1.20.1");
         ctx.drawTextWithShadow(textRenderer, version, Math.max(6, width - textRenderer.getWidth(version) - 6), 6, 0xffe3a1ff);
         if (height > 170 && width > 320) {
             ctx.drawTextWithShadow(textRenderer, "Minecraft 1.20.1", 6, height - 22, 0xffffffff);

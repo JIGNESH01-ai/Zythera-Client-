@@ -40,3 +40,6 @@ The purple logo is cut out from the supplied flattened loading-screen reference;
 
 ### Loading screen reference (0.5.4)
 Only the resource-loading overlay has been redesigned. Its logo is extracted from the supplied flattened screenshot; the scenery is generated reference-inspired artwork, not the original image. The Discord address is reproduced as reference text and has not been verified. The splash font uses an embedded ASCII atlas because the Minecraft font may not yet be loaded; the overlay's own labels use ASCII. The animation percentage is visual, while the Resources line reports the real reload progress. The main menu has not been redesigned in this update.
+
+### Purple theme (0.5.5)
+Both title and resource-loading screens use the earlier purple logo and bright castle scenery, as selected when the gold reference conflicted with the purple written requirements. The logo is extracted from a flattened reference image and the clean scenery is generated, so these are not original separate master assets or an exact reproduction. Title text uses Minecraft's language-aware font; the early loading overlay uses its bundled ASCII atlas for its own English labels. Account sign-in is managed in the launcher. Device compatibility and visual quality still require real-device validation.

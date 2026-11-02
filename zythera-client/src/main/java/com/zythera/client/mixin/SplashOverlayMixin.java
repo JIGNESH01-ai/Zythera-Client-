@@ -73,8 +73,8 @@ public abstract class SplashOverlayMixin {
         if (guiWidth < 24 || guiHeight < 45 || width <= 0 || height <= 0) return;
         if (!zythera$textureAttempted) {
             zythera$textureAttempted = true;
-            zythera$artReady = zythera$loadTexture(ART, "/assets/zythera/textures/gui/splash-reference-logo.png", true);
-            zythera$backgroundReady = zythera$loadTexture(BACKGROUND, "/assets/zythera/textures/gui/splash-village.png", true);
+            zythera$artReady = zythera$loadTexture(ART, "/assets/zythera/textures/gui/purple-logo.png", true);
+            zythera$backgroundReady = zythera$loadTexture(BACKGROUND, "/assets/zythera/textures/gui/purple-background.png", true);
             zythera$fontReady = zythera$loadTexture(FONT, "/assets/zythera/textures/gui/loading-font-hd.png", true);
         }
         // Draw directly in framebuffer pixels, avoiding any scaled intermediate render target.
@@ -99,7 +99,7 @@ public abstract class SplashOverlayMixin {
         int headerH = Math.round(16*u);
         int headW = Math.min(width/3, Math.round(135*u));
         zythera$panel(ctx, margin, margin, headW, headerH, u);
-        zythera$center(ctx, "Zythera Client 0.5.4", margin+headW/2, margin+Math.round(2*u), headW-Math.round(4*u), 0xffffff);
+        zythera$center(ctx, "Zythera Client " + net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer("zythera").map(m -> m.getMetadata().getVersion().getFriendlyString()).orElse("1.20.1"), margin+headW/2, margin+Math.round(2*u), headW-Math.round(4*u), 0xffffff);
         int fpsW = Math.min(width/4, Math.round(85*u));
         zythera$panel(ctx, width-margin-fpsW, margin, fpsW, headerH, u);
         zythera$center(ctx, "FPS: " + client.getCurrentFps(), width-margin-fpsW/2, margin+Math.round(2*u), fpsW-Math.round(4*u), 0xffffff);
@@ -110,9 +110,9 @@ public abstract class SplashOverlayMixin {
         int maxLogoHeight = Math.max(1, statusY - logoY - Math.round(5*u));
         int maxLogoWidth = Math.max(1, Math.min(width - 2*margin, Math.round(650*u)));
         if (zythera$artReady) {
-            var logo = TextureLayout.contain(1010, 445, maxLogoWidth, maxLogoHeight);
-            double x = (width - 1010 * logo.scale()) / 2.0;
-            zythera$drawImage(ctx, ART, x, logoY + (maxLogoHeight - 445 * logo.scale())/2, logo.scale(), 1010, 445);
+            var logo = TextureLayout.contain(970, 425, maxLogoWidth, maxLogoHeight);
+            double x = (width - 970 * logo.scale()) / 2.0;
+            zythera$drawImage(ctx, ART, x, logoY + (maxLogoHeight - 425 * logo.scale())/2, logo.scale(), 970, 425);
         } else {
             zythera$center(ctx, "ZYTHERA CLIENT", width / 2, logoY + maxLogoHeight / 2, width - 2*margin, 0xe1a2ff);
         }
@@ -155,9 +155,9 @@ public abstract class SplashOverlayMixin {
         if (footerY > infoY + Math.round(12*u)) {
             int footW = Math.min(width/2 - margin*2, Math.round(160*u));
             zythera$panel(ctx, margin, footerY, footW, Math.round(17*u), u);
-            zythera$center(ctx, "Made by Zythera Team", margin+footW/2, footerY+Math.round(2*u), footW-Math.round(4*u), 0xffffff);
+            zythera$center(ctx, "Made by JIGNESH_GAMING-k7j", margin+footW/2, footerY+Math.round(2*u), footW-Math.round(4*u), 0xffffff);
             zythera$panel(ctx, width-margin-footW, footerY, footW, Math.round(17*u), u);
-            zythera$center(ctx, "discord.gg/Zythera", width-margin-footW/2, footerY+Math.round(2*u), footW-Math.round(4*u), 0xe1a2ff);
+            zythera$center(ctx, "Play  |  Optimize  |  Enjoy", width-margin-footW/2, footerY+Math.round(2*u), footW-Math.round(4*u), 0xe1a2ff);
         }
         ctx.getMatrices().pop();
     }
