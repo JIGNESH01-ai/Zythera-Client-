@@ -15,7 +15,7 @@ import java.util.Locale;
 /** Small, touch-friendly menu; only exposes controls backed by real behavior. */
 public final class ZytheraScreen extends Screen {
     private final Screen parent;
-    private String page = "Mods", query = "";
+    private String page = "Features", query = "";
     private boolean draggingArmor, draggingText;
     private int modsPage, fpsPage;
     private int dragX, dragY;
@@ -28,20 +28,20 @@ public final class ZytheraScreen extends Screen {
         panelWidth = Math.min(width - 16, 640); panelHeight = Math.min(height - 16, 360);
         left = (width - panelWidth) / 2; top = (height - panelHeight) / 2;
         int sidebar = Math.min(105, panelWidth / 3), content = left + sidebar + 12;
-        String[] pages = {"Mods", "HUD Editor", "FPS Boost", "Settings", "About"};
+        String[] pages = {"Features", "HUD Editor", "FPS Boost", "Settings", "About"};
         for (int i = 0; i < pages.length; i++) {
             String name = pages[i];
             addDrawableChild(ButtonWidget.builder(Text.literal(name), b -> { page = name; query = ""; rebuild(); })
                 .dimensions(left + 7, top + 43 + i * 25, sidebar - 12, 20).build());
         }
         int w = Math.max(60, panelWidth - sidebar - 24);
-        if (page.equals("Mods")) {
-            search = new TextFieldWidget(textRenderer, content, top + 42, w, 20, Text.literal("Search modules"));
+        if (page.equals("Features")) {
+            search = new TextFieldWidget(textRenderer, content, top + 42, w, 20, Text.literal("Search features"));
             search.setMaxLength(40); search.setText(query);
             search.setChangedListener(value -> { query = value; rebuild(); if (search != null) { setFocused(search); search.setCursorToEnd(); } });
             addDrawableChild(search);
             Settings s = ZytheraClient.settings;
-            button(modsPage == 0 ? "More modules >" : "< Previous modules", content, top + 66, w, () -> { modsPage = 1 - modsPage; rebuild(); });
+            button(modsPage == 0 ? "More features >" : "< Previous features", content, top + 66, w, () -> { modsPage = 1 - modsPage; rebuild(); });
             int y = top + 90;
             if (modsPage == 0) {
             y = toggle("Armor HUD", s.armor, () -> s.armor = !s.armor, content, y, w);
