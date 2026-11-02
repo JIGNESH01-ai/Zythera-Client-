@@ -73,8 +73,8 @@ public abstract class SplashOverlayMixin {
         if (guiWidth < 24 || guiHeight < 45 || width <= 0 || height <= 0) return;
         if (!zythera$textureAttempted) {
             zythera$textureAttempted = true;
-            zythera$artReady = zythera$loadTexture(ART, "/assets/zythera/textures/gui/loading-logo-hd.png", true);
-            zythera$backgroundReady = zythera$loadTexture(BACKGROUND, "/assets/zythera/textures/gui/loading-background-hd.png", true);
+            zythera$artReady = zythera$loadTexture(ART, "/assets/zythera/textures/gui/purple-logo.png", true);
+            zythera$backgroundReady = zythera$loadTexture(BACKGROUND, "/assets/zythera/textures/gui/purple-background.png", true);
             zythera$fontReady = zythera$loadTexture(FONT, "/assets/zythera/textures/gui/loading-font-hd.png", true);
         }
         // Draw directly in framebuffer pixels, avoiding any scaled intermediate render target.
@@ -83,11 +83,11 @@ public abstract class SplashOverlayMixin {
         float u = zythera$pixelUnit;
         ctx.getMatrices().push();
         ctx.getMatrices().scale(guiWidth / (float)width, guiHeight / (float)height, 1);
-        ctx.fill(0, 0, width, height, 0xff09070b);
+        ctx.fill(0, 0, width, height, 0xff080512);
         if (zythera$backgroundReady) {
-            TextureLayout.Placement bg = TextureLayout.cover(1000, 775, width, height);
-            zythera$drawImage(ctx, BACKGROUND, bg.x(), bg.y(), bg.scale(), 1000, 775);
-            ctx.fill(0, 0, width, height, 0x99000000);
+            TextureLayout.Placement bg = TextureLayout.cover(1376, 768, width, height);
+            zythera$drawImage(ctx, BACKGROUND, bg.x(), bg.y(), bg.scale(), 1376, 768);
+            ctx.fill(0, 0, width, height, 0x66000000);
         } else {
             for (int i = 0; i < 8; i++) {
                 int x = i * width / 7;
@@ -95,7 +95,10 @@ public abstract class SplashOverlayMixin {
                 ctx.fill(x, height - h, x + Math.max(2, width / 28), height, 0xff1b1024);
             }
         }
-        if (guiWidth >= 200) zythera$center(ctx, "FPS: " + client.getCurrentFps(), (int)(38*u), (int)(3*u), (int)(70*u), 0xffd166);
+        if (guiWidth >= 200) {
+            zythera$center(ctx, "FPS: " + client.getCurrentFps(), (int)(38*u), (int)(3*u), (int)(70*u), 0xe1a2ff);
+            zythera$center(ctx, "Zythera Client 0.5.3", width - (int)(85*u), (int)(3*u), (int)(165*u), 0xe1a2ff);
+        }
         int margin = Math.round(8*u);
         int footerReserve = Math.round((guiHeight >= 170 ? 68 : guiHeight >= 145 ? 57 : guiHeight >= 125 ? 39 : 28) * u);
         int barLimit = height - footerReserve;
@@ -104,13 +107,13 @@ public abstract class SplashOverlayMixin {
         int maxArtWidth = Math.max(1, Math.min(width - 2*margin, Math.round(640*u)));
         int artHeight;
         if (zythera$artReady && maxArtHeight >= 12*u) {
-            var logo = TextureLayout.contain(1195, 485, maxArtWidth, maxArtHeight);
-            artHeight = Math.max(1, (int)Math.ceil(485 * logo.scale()));
-            double x = (width - 1195 * logo.scale()) / 2.0;
-            zythera$drawImage(ctx, ART, x, artY, logo.scale(), 1195, 485);
+            var logo = TextureLayout.contain(970, 425, maxArtWidth, maxArtHeight);
+            artHeight = Math.max(1, (int)Math.ceil(425 * logo.scale()));
+            double x = (width - 970 * logo.scale()) / 2.0;
+            zythera$drawImage(ctx, ART, x, artY, logo.scale(), 970, 425);
         } else {
             artHeight = Math.round(12*u);
-            zythera$center(ctx, "ZYTHERA CLIENT", width / 2, artY, width - 2*margin, 0xffd166);
+            zythera$center(ctx, "ZYTHERA CLIENT", width / 2, artY, width - 2*margin, 0xe1a2ff);
         }
         if (!zythera$smokeLogged && "1".equals(System.getenv("ZYTHERA_SMOKE_TEST"))) {
             zythera$smokeLogged = true;
@@ -127,21 +130,21 @@ public abstract class SplashOverlayMixin {
         String status = visualPercent == 100 ? "Loading Complete!" : "Visual startup animation";
         zythera$center(ctx, status, width / 2, barY - Math.round(13*u), width - 2*margin, 0xffffff);
         int border = Math.max(1, Math.round(u)), inset = 2*border;
-        ctx.fill(x, barY, x + barWidth, barY + Math.round(8*u), 0xffffd148);
-        ctx.fill(x + border, barY + border, x + barWidth - border, barY + Math.round(7*u), 0xff170f0b);
+        ctx.fill(x, barY, x + barWidth, barY + Math.round(8*u), 0xffc75cff);
+        ctx.fill(x + border, barY + border, x + barWidth - border, barY + Math.round(7*u), 0xff10081b);
         int fill = (int)Math.round((barWidth - 2*inset) * visualPercent / 100.0);
-        if (fill > 0) ctx.fill(x + inset, barY + inset, x + inset + fill, barY + Math.round(6*u), 0xffffc42a);
+        if (fill > 0) ctx.fill(x + inset, barY + inset, x + inset + fill, barY + Math.round(6*u), 0xffb931f5);
         zythera$center(ctx, visualPercent + "%", width / 2, barY + Math.round(11*u), width - 2*margin, 0xffffff);
         int real = MathHelper.clamp(Math.round(reload.getProgress() * 100), 0, 100);
-        if (guiHeight >= 125) zythera$center(ctx, "Resources: " + real + "%", width / 2, barY + Math.round(22*u), width - 2*margin, 0xffd166);
+        if (guiHeight >= 125) zythera$center(ctx, "Resources: " + real + "%", width / 2, barY + Math.round(22*u), width - 2*margin, 0xe1a2ff);
         if (guiHeight >= 190 && barY + Math.round(44*u) < height - Math.round(38*u)) {
             String tip = TIPS[(int)((Util.getMeasuringTimeMs() / 7000) % TIPS.length)];
-            zythera$center(ctx, tip, width / 2, barY + Math.round(35*u), width - 2*margin, 0xffd166);
+            zythera$center(ctx, tip, width / 2, barY + Math.round(35*u), width - 2*margin, 0xe1a2ff);
         }
         if (guiHeight >= 145) {
-            if (guiHeight >= 170) zythera$center(ctx, "Optimized for Low End Devices", width / 2, height - Math.round(33*u), width - 2*margin, 0xffd166);
+            if (guiHeight >= 170) zythera$center(ctx, "Optimized for Low End Devices", width / 2, height - Math.round(33*u), width - 2*margin, 0xe1a2ff);
             zythera$center(ctx, "Made by JIGNESH_GAMING-k7j", width / 2, height - Math.round(22*u), width - 2*margin, 0xffffff);
-            zythera$center(ctx, "Subscribe on YouTube", width / 2, height - Math.round(11*u), width - 2*margin, 0xffd166);
+            zythera$center(ctx, "Subscribe on YouTube", width / 2, height - Math.round(11*u), width - 2*margin, 0xe1a2ff);
         }
         ctx.getMatrices().pop();
     }

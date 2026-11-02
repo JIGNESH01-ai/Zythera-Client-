@@ -34,3 +34,6 @@ The Fabric client overlays Minecraft's resource-reload screen with Zythera artwo
 ## Installable instance
 
 See [the modpack project](../modpack/README.md) for the Modrinth-format import archive, manual fallback, bundled dependencies, and Android limitations.
+
+### Purple reference design (0.5.3)
+The purple logo is cut out from the supplied flattened loading-screen reference; its detail and edge quality are limited by that screenshot. The fantasy background is a generated interpretation of the references with their baked-in UI removed, not an original game artwork or an exact pixel match. Separate original logo and background files would allow higher fidelity. The Accounts button explains how to manage accounts in the launcher; it does not authenticate or switch accounts. Visual quality, full menu interaction, packaged mods, and Android/Pojav remain unverified unless separately tested.

@@ -2,7 +2,7 @@ plugins {
     id 'fabric-loom' version '1.6-SNAPSHOT'
     id 'maven-publish'
 }
-version = '0.5.2'
+version = '0.5.3'
 group = 'com.zythera'
 base { archivesName = 'zythera-client' }
 repositories { mavenCentral() }

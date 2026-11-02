@@ -7,11 +7,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 PACK = ROOT / 'modpack-build'
-OUTPUT = ROOT / 'zythera-client-1.20.1-v0.5.2-alpha.mrpack'
+OUTPUT = ROOT / 'zythera-client-1.20.1-v0.5.3-alpha.mrpack'
 MANIFEST = {
     'formatVersion': 1,
     'game': 'minecraft',
-    'versionId': '0.5.2-alpha',
+    'versionId': '0.5.3-alpha',
     'name': 'Zythera Client',
     'summary': 'Gold and black Fabric client by JIGNESH_GAMING-k7j',
     # Bundled mods are overrides, so imports need not download the mod JARs.
@@ -19,7 +19,7 @@ MANIFEST = {
     'dependencies': {'minecraft': '1.20.1', 'fabric-loader': '0.15.11'},
 }
 required = [
-    'mods/zythera-client-0.5.2.jar',
+    'mods/zythera-client-0.5.3.jar',
     'mods/fabric-api-0.92.2+1.20.1.jar',
     'mods/lithium-fabric-mc1.20.1-0.11.4.jar',
     'mods/ferritecore-6.0.1-fabric.jar',

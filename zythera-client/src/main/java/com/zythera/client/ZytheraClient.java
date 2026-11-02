@@ -45,7 +45,7 @@ public final class ZytheraClient implements ClientModInitializer {
             while (menu.wasPressed()) client.setScreen(new ZytheraScreen(client.currentScreen));
         });
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
-            if (!(screen instanceof TitleScreen) && !(screen instanceof GameMenuScreen)) return;
+            if (!(screen instanceof GameMenuScreen)) return;
             int x = 5, y = 5, w = 110, h = 20;
             Screens.getButtons(screen).add(ButtonWidget.builder(Text.literal("Zythera Mods"),
                 button -> client.setScreen(new ZytheraScreen(screen))).dimensions(x, y, w, h).build());
@@ -56,10 +56,7 @@ public final class ZytheraClient implements ClientModInitializer {
                 }
                 return true;
             });
-            if (screen instanceof TitleScreen) ScreenEvents.afterRender(screen).register((current, context, mouseX, mouseY, tickDelta) -> {
-                context.drawTextWithShadow(client.textRenderer, "ZYTHERA CLIENT", 8, 30, 0xFFFFD166);
-                context.drawTextWithShadow(client.textRenderer, "Made by JIGNESH_GAMING-k7j", 8, 41, 0xFFFFD166);
-            });
+
         });
         HudRenderCallback.EVENT.register((context, tickDelta) -> {
             MinecraftClient client = MinecraftClient.getInstance();
