@@ -22,7 +22,10 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
-      - run: ./zythera-client/gradlew -p zythera-client --no-daemon build
+      - name: Build with error diagnostics
+        run: |
+          set -o pipefail
+          ./zythera-client/gradlew -p zythera-client --no-daemon build 2>&1 | tee /tmp/zythera-build.log || { tail -100 /tmp/zythera-build.log | while IFS= read -r line; do echo "::error::$line"; done; exit 1; }
       - uses: actions/upload-artifact@v4
         with:
           name: zythera-fabric-1.20.1
