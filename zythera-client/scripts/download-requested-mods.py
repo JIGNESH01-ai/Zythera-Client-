@@ -16,11 +16,11 @@ VERSIONS = {
     'Fabric API': 'P7uGFii0', 'Fabric Chunk Pregenerator': 'dDZVCrf6',
     'FerriteCore': 'unerR5MN', 'FPS Reducer': 'i4klNdvx', 'JourneyMap': 'mQisuQcc',
     'Lithium': 'iEcXOkz4', 'YACL': 'dvS5DjUA', 'Zoomify': 'hWl13Hjr',
-    'Fabric Language Kotlin (Zoomify dependency)': 'E4WyjCxJ',
+    'Fabric Language Kotlin (Zoomify dependency)': 'mccDBWqV',
 }
 AETHERIUM = ('https://github.com/entitybrian69-bit/aetherium/releases/download/v1.15.0%2B1.20.1/aetherium-fabric-1.15.0%2B1.20.1.jar',
              'aetherium-fabric-1.15.0+1.20.1.jar', '5392f2ffe2e7c1cc13c68d9ef6102af8e50e547d1e31bc84579f7efbbefac4ad')
-HEADERS = {'User-Agent': 'ZytheraClient/0.5.7 (mod installer)'}
+HEADERS = {'User-Agent': 'ZytheraClient/0.5.8 (mod installer)'}
 def get(url):
     with urllib.request.urlopen(urllib.request.Request(url, headers=HEADERS), timeout=60) as response:
         return response.read()
