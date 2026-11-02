@@ -10,7 +10,7 @@ public class PurpleButton extends ButtonWidget {
     public PurpleButton(int x, int y, int width, int height, Text label, PressAction action) {
         super(x, y, width, height, label, action, DEFAULT_NARRATION_SUPPLIER);
     }
-    @Override public void renderWidget(DrawContext ctx, int mouseX, int mouseY, float delta) {
+    @Override public void renderButton(DrawContext ctx, int mouseX, int mouseY, float delta) {
         int x = getX(), y = getY(), w = getWidth(), h = getHeight();
         int edge = isHovered() || isFocused() ? 0xffffa0ff : 0xffb83ef0;
         ctx.fill(x-1, y-1, x+w+1, y+h+1, 0x883d1067);
