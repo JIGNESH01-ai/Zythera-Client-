@@ -16,3 +16,27 @@ jobs:
           set -o pipefail
           python3 zythera-client/scripts/download-requested-mods.py /tmp/zythera-requested-mods 2>&1 | tee /tmp/mod-download.log || { tail -25 /tmp/mod-download.log | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g;s/^/::error::/'; exit 1; }
           test "$(find /tmp/zythera-requested-mods -maxdepth 1 -name '*.jar' | wc -l)" -eq 13
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install graphics libraries
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri libopenal1 flite1-dev
+      - name: Launch development client with requested JARs
+        env:
+          ZYTHERA_SMOKE_TEST: '1'
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          ALSOFT_DRIVERS: 'null'
+          ALSA_CONFIG_PATH: /tmp/zythera-asound.conf
+        run: |
+          set -o pipefail
+          mkdir -p zythera-client/run/mods
+          cp /tmp/zythera-requested-mods/*.jar zythera-client/run/mods/
+          # Fabric API is already supplied by Loom in this development client.
+          rm zythera-client/run/mods/fabric-api-*.jar
+          python3 -c 'import zipfile; z=zipfile.ZipFile("zythera-client/run/mods/fixture.jar.disabled", "w"); z.writestr("fabric.mod.json", "{\"schemaVersion\":1,\"id\":\"zythera_smoke_fixture\",\"version\":\"1\",\"name\":\"Smoke Fixture\"}"); z.close()'
+          printf 'onboardAccessibility:false\nnarrator:0\n' > zythera-client/run/options.txt
+          printf 'pcm.!default { type null }\nctl.!default { type hw card 0 }\n' > /tmp/zythera-asound.conf
+          timeout 240 xvfb-run -a ./zythera-client/gradlew -p zythera-client --no-daemon runClient 2>&1 | tee /tmp/requested-smoke.log || { python3 -c 'from pathlib import Path; s="\n".join(x[:300] for x in [l for l in Path("/tmp/requested-smoke.log").read_text(errors="replace").splitlines() if any(k in l for k in ("Exception", "Error", "Caused by", "SMOKE_", "requires", "Incompatible", "version"))][-30:]); print("::error title=Requested mods smoke::"+s.replace("%","%25").replace("\r","%0D").replace("\n","%0A"))'; exit 1; }
+          grep -F '[Zythera] SMOKE_INSTALLED_MODS_OK' /tmp/requested-smoke.log
