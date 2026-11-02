@@ -37,3 +37,6 @@ See [the modpack project](../modpack/README.md) for the Modrinth-format import a
 
 ### Purple reference design (0.5.3)
 The purple logo is cut out from the supplied flattened loading-screen reference; its detail and edge quality are limited by that screenshot. The fantasy background is a generated interpretation of the references with their baked-in UI removed, not an original game artwork or an exact pixel match. Separate original logo and background files would allow higher fidelity. The Accounts button explains how to manage accounts in the launcher; it does not authenticate or switch accounts. Visual quality, full menu interaction, packaged mods, and Android/Pojav remain unverified unless separately tested.
+
+### Loading screen reference (0.5.4)
+Only the resource-loading overlay has been redesigned. Its logo is extracted from the supplied flattened screenshot; the scenery is generated reference-inspired artwork, not the original image. The Discord address is reproduced as reference text and has not been verified. The splash font uses an embedded ASCII atlas because the Minecraft font may not yet be loaded; the overlay's own labels use ASCII. The animation percentage is visual, while the Resources line reports the real reload progress. The main menu has not been redesigned in this update.
