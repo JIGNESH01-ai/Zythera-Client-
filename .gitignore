@@ -38,3 +38,6 @@ fs-manager-udroid/
 # Downloaded third-party mods have separate redistribution terms.
 /zythera-client/mods/*.jar
 /zythera-client/mods/*.jar.disabled
+
+__pycache__/
+*.pyc
