@@ -3,6 +3,7 @@ package com.zythera.client.mixin;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.zythera.client.LoadingTimeline;
 import com.zythera.client.TextureLayout;
+import com.zythera.client.SplashLayout;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Overlay;
@@ -75,46 +76,31 @@ public abstract class SplashOverlayMixin {
             zythera$textureAttempted = true;
             zythera$artReady = zythera$loadTexture(ART, "/assets/zythera/textures/gui/purple-logo.png", true);
             zythera$backgroundReady = zythera$loadTexture(BACKGROUND, "/assets/zythera/textures/gui/purple-background.png", true);
-            zythera$fontReady = zythera$loadTexture(FONT, "/assets/zythera/textures/gui/loading-font-hd.png", true);
+            zythera$fontReady = zythera$loadTexture(FONT, "/assets/zythera/textures/gui/loading-font-proportional.png", true);
         }
         // Draw directly in framebuffer pixels, avoiding any scaled intermediate render target.
         // Convert framebuffer coordinates to the GUI projection, accounting for rounded GUI dimensions.
-        zythera$pixelUnit = Math.min(Math.min(width / (float) guiWidth, height / (float) guiHeight), Math.min(width / 320f, height / 200f));
-        float u = zythera$pixelUnit;
+        SplashLayout layout = SplashLayout.forSize(width, height);
+        zythera$pixelUnit = layout.unit();
+        float u = layout.unit();
         ctx.getMatrices().push();
         ctx.getMatrices().scale(guiWidth / (float)width, guiHeight / (float)height, 1);
         ctx.fill(0, 0, width, height, 0xff080512);
         if (zythera$backgroundReady) {
             TextureLayout.Placement bg = TextureLayout.cover(1376, 768, width, height);
             zythera$drawImage(ctx, BACKGROUND, bg.x(), bg.y(), bg.scale(), 1376, 768);
-            ctx.fill(0, 0, width, height, 0x22000000);
-        } else {
-            for (int i = 0; i < 8; i++) {
-                int x = i * width / 7;
-                int h = height / 5 + (i * 47 % Math.max(1, height / 4));
-                ctx.fill(x, height - h, x + Math.max(2, width / 28), height, 0xff1b1024);
-            }
         }
-        int margin = Math.max(2, Math.round(7*u));
-        int headerH = Math.round(16*u);
-        int headW = Math.min(width/3, Math.round(135*u));
-        zythera$panel(ctx, margin, margin, headW, headerH, u);
-        zythera$center(ctx, "Zythera Client " + net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer("zythera").map(m -> m.getMetadata().getVersion().getFriendlyString()).orElse("1.20.1"), margin+headW/2, margin+Math.round(2*u), headW-Math.round(4*u), 0xffffff);
-        int fpsW = Math.min(width/4, Math.round(85*u));
-        zythera$panel(ctx, width-margin-fpsW, margin, fpsW, headerH, u);
-        zythera$center(ctx, "FPS: " + client.getCurrentFps(), width-margin-fpsW/2, margin+Math.round(2*u), fpsW-Math.round(4*u), 0xffffff);
-
-        int statusY = Math.round(height * 0.59f);
-        int statusH = Math.round(19*u);
-        int logoY = margin + headerH;
-        int maxLogoHeight = Math.max(1, statusY - logoY - Math.round(5*u));
-        int maxLogoWidth = Math.max(1, Math.min(width - 2*margin, Math.round(650*u)));
+        // FPS is centred rather than in the top-right corner, where launcher mouse
+        // controls commonly sit. External launcher overlays cannot be repositioned by a mod.
+        zythera$center(ctx, "FPS: " + client.getCurrentFps(), width/2,
+            Math.round(height*.025f), Math.round(width*.35f), 0xffffff);
+        int maxLogoWidth = Math.max(1, Math.round(width*.84f));
         if (zythera$artReady) {
-            var logo = TextureLayout.contain(970, 425, maxLogoWidth, maxLogoHeight);
-            double x = (width - 970 * logo.scale()) / 2.0;
-            zythera$drawImage(ctx, ART, x, logoY + (maxLogoHeight - 425 * logo.scale())/2, logo.scale(), 970, 425);
+            var logo = TextureLayout.contain(970, 425, maxLogoWidth, layout.logoHeight());
+            zythera$drawImage(ctx, ART, (width-970*logo.scale())/2,
+                layout.logoTop()+(layout.logoHeight()-425*logo.scale())/2, logo.scale(), 970, 425);
         } else {
-            zythera$center(ctx, "ZYTHERA CLIENT", width / 2, logoY + maxLogoHeight / 2, width - 2*margin, 0xe1a2ff);
+            zythera$center(ctx, "ZYTHERA CLIENT", width/2, layout.logoTop()+layout.logoHeight()/2, maxLogoWidth, 0xe1a2ff);
         }
         if (!zythera$smokeLogged && "1".equals(System.getenv("ZYTHERA_SMOKE_TEST"))) {
             zythera$smokeLogged = true;
@@ -125,47 +111,25 @@ public abstract class SplashOverlayMixin {
             zythera$completionLogged = true;
             System.out.println("[Zythera] SMOKE_ANIMATION_COMPLETE");
         }
-        int statusW = Math.min(width - 2*margin, Math.round(320*u));
-        zythera$panel(ctx, (width-statusW)/2, statusY, statusW, statusH, u);
-        String status = visualPercent == 100 ? "Loading Complete!" : "Loading... Please Wait";
-        zythera$center(ctx, status, width/2, statusY+Math.round(3*u), statusW-Math.round(6*u), 0xffffff);
-        int barY = statusY + statusH + Math.round(5*u);
-        int barWidth = Math.min(width - 2*margin, Math.round(410*u));
-        int barHeight = Math.round(18*u);
-        int x = (width - barWidth) / 2;
-        zythera$panel(ctx, x, barY, barWidth, barHeight, u);
-        int inset = Math.max(2, Math.round(2*u));
-        int fill = (int)Math.round((barWidth - 2*inset) * visualPercent / 100.0);
+        String status = visualPercent == 100 ? "Loading Complete!" : "Starting client...";
+        zythera$center(ctx, status, width/2, layout.statusY(), Math.round(width*.8f), 0xffffff);
+        int x = (width-layout.barWidth())/2, y = layout.barY();
+        int barW = layout.barWidth(), barH = layout.barHeight();
+        int edge = Math.max(1, Math.round(u));
+        // One subtle halo, then a thin track and fill. No shader or offscreen target.
+        ctx.fill(x-edge, y-edge, x+barW+edge, y+barH+edge, 0x703d0065);
+        ctx.fill(x, y, x+barW, y+barH, 0xdd130c1b);
+        int fill = Math.round(barW * visualPercent / 100f);
         if (fill > 0) {
-            ctx.fill(x+inset, barY+inset, x+inset+fill, barY+barHeight-inset, 0xffaa1ad6);
-            ctx.fill(x+inset, barY+inset, x+inset+fill, barY+inset+Math.max(1, Math.round(3*u)), 0xffea78ff);
+            ctx.fill(x, y, x+fill, y+barH, 0xffad32e5);
+            ctx.fill(x, y, x+fill, y+Math.max(1, barH/3), 0xffdb82ff);
         }
-        zythera$center(ctx, visualPercent + "%", width/2, barY+Math.round(3*u), barWidth-Math.round(4*u), 0xffffff);
-        int real = MathHelper.clamp(Math.round(reload.getProgress() * 100), 0, 100);
-        int infoY = barY + barHeight + Math.round(3*u);
-        zythera$center(ctx, "Visual animation | Resources: " + real + "%", width/2, infoY, width-2*margin, 0xffffff);
-        int footerY = height - margin - Math.round(17*u);
-        int tipY = infoY + Math.round(16*u);
-        if (tipY + Math.round(18*u) < footerY) {
-            int tipW = Math.min(width-2*margin, Math.round(360*u));
-            zythera$panel(ctx, (width-tipW)/2, tipY, tipW, Math.round(18*u), u);
-            String tip = TIPS[(int)((Util.getMeasuringTimeMs() / 7000) % TIPS.length)];
-            zythera$center(ctx, tip, width/2, tipY+Math.round(3*u), tipW-Math.round(6*u), 0xffffff);
-        }
-        if (footerY > infoY + Math.round(12*u)) {
-            int footW = Math.min(width/2 - margin*2, Math.round(160*u));
-            zythera$panel(ctx, margin, footerY, footW, Math.round(17*u), u);
-            zythera$center(ctx, "Made by JIGNESH_GAMING-k7j", margin+footW/2, footerY+Math.round(2*u), footW-Math.round(4*u), 0xffffff);
-            zythera$panel(ctx, width-margin-footW, footerY, footW, Math.round(17*u), u);
-            zythera$center(ctx, "Play  |  Optimize  |  Enjoy", width-margin-footW/2, footerY+Math.round(2*u), footW-Math.round(4*u), 0xe1a2ff);
-        }
+        zythera$center(ctx, visualPercent+"% (animation)", width/2, layout.percentY(), Math.round(width*.8f), 0xffffff);
+        int real = MathHelper.clamp(Math.round(reload.getProgress()*100), 0, 100);
+        zythera$center(ctx, "Resources: "+real+"%", width/2, layout.resourceY(), Math.round(width*.8f), 0xe5c8ff);
+        String tip = TIPS[(int)((Util.getMeasuringTimeMs()/7000)%TIPS.length)];
+        zythera$center(ctx, tip, width/2, layout.tipY(), Math.round(width*.85f), 0xffffff);
         ctx.getMatrices().pop();
-    }
-    @Unique private void zythera$panel(DrawContext ctx, int x, int y, int w, int h, float u) {
-        int border = Math.max(1, Math.round(u));
-        ctx.fill(x-border, y-border, x+w+border, y+h+border, 0x7748006d);
-        ctx.fill(x, y, x+w, y+h, 0xffbc59ec);
-        ctx.fill(x+border, y+border, x+w-border, y+h-border, 0xe9080710);
     }
     @Unique private void zythera$drawImage(DrawContext ctx, Identifier id, double x, double y, double scale, int textureWidth, int textureHeight) {
         ctx.getMatrices().push();
@@ -189,11 +153,18 @@ public abstract class SplashOverlayMixin {
             return false;
         }
     }
-    /** ASCII-only bitmap glyphs are available even before Minecraft's font resources finish loading. */
+    // An embedded proportional ASCII atlas is available during early resource reload.
+    // All overlay labels are fixed ASCII; normal Minecraft screens use Minecraft's font.
+    @Unique private static final int[] zythera$advances = {
+        10,13,15,27,20,30,25,9,12,12,16,27,10,12,10,11,20,20,20,20,20,20,20,20,20,20,11,11,27,27,27,17,
+        32,22,22,22,25,20,18,25,24,9,9,21,18,28,24,25,19,25,22,20,20,23,22,32,22,20,22,12,11,12,27,16,
+        16,20,20,18,20,20,11,20,20,9,9,19,9,31,20,20,20,20,13,17,13,20,19,26,19,19,17,20,11,20,27
+    };
+    @Unique private int zythera$index(char c) { return (c >= 32 && c <= 126 ? c : '?')-32; }
     @Unique private void zythera$center(DrawContext ctx, String text, int centerX, int y, int maxWidth, int rgb) {
         if (!zythera$fontReady) {
             if (client.textRenderer != null) {
-                float scale = Math.min(zythera$pixelUnit, maxWidth / (float)Math.max(1, client.textRenderer.getWidth(text)));
+                float scale = Math.min(zythera$pixelUnit, maxWidth/(float)Math.max(1, client.textRenderer.getWidth(text)));
                 ctx.getMatrices().push();
                 ctx.getMatrices().translate(centerX, y, 0);
                 ctx.getMatrices().scale(scale, scale, 1);
@@ -202,19 +173,26 @@ public abstract class SplashOverlayMixin {
             }
             return;
         }
-        float scale = Math.min(12f * zythera$pixelUnit / 48f, maxWidth / (float)Math.max(1, text.length() * 28));
+        int width = 0;
+        for (int i=0; i<text.length(); i++) width += zythera$advances[zythera$index(text.charAt(i))];
+        float scale = Math.min(12f*zythera$pixelUnit/48f, maxWidth/(float)Math.max(1, width));
         ctx.getMatrices().push();
-        ctx.getMatrices().translate(Math.round(centerX - text.length() * 28 * scale / 2.0), y, 0);
+        ctx.getMatrices().translate(Math.round(centerX-width*scale/2), y, 0);
         ctx.getMatrices().scale(scale, scale, 1);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.setShaderColor(((rgb >> 16) & 255) / 255f, ((rgb >> 8) & 255) / 255f, (rgb & 255) / 255f, 1);
-        for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
-            int index = (c >= 32 && c <= 126 ? c : '?') - 32;
-            ctx.drawTexture(FONT, i * 28, 0, (index % 16) * 28, (index / 16) * 48, 28, 48, 448, 288);
-        }
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        zythera$glyphs(ctx, text, 2, 2, 0x09040f);
+        zythera$glyphs(ctx, text, 0, 0, rgb);
+        RenderSystem.setShaderColor(1,1,1,1);
         ctx.getMatrices().pop();
+    }
+    @Unique private void zythera$glyphs(DrawContext ctx, String text, int ox, int oy, int rgb) {
+        RenderSystem.setShaderColor(((rgb>>16)&255)/255f, ((rgb>>8)&255)/255f, (rgb&255)/255f, 1);
+        int x=ox;
+        for (int i=0; i<text.length(); i++) {
+            int index = zythera$index(text.charAt(i));
+            ctx.drawTexture(FONT, x, oy, (index%16)*48, (index/16)*48, 48, 48, 768, 288);
+            x += zythera$advances[index];
+        }
     }
 }
