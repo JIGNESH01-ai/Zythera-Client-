@@ -48,10 +48,10 @@ public final class ZytheraClient implements ClientModInitializer {
             if (!(screen instanceof GameMenuScreen)) return;
             int x = 5, y = 5, w = 110, h = 20;
             Screens.getButtons(screen).add(ButtonWidget.builder(Text.literal("Zythera Mods"),
-                button -> client.setScreen(new ZytheraScreen(screen))).dimensions(x, y, w, h).build());
+                button -> client.setScreen(new InstalledModsScreen(screen))).dimensions(x, y, w, h).build());
             ScreenMouseEvents.allowMouseClick(screen).register((current, mouseX, mouseY, button) -> {
                 if (button == 1 && mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h) {
-                    client.setScreen(new ZytheraScreen(current));
+                    client.setScreen(new InstalledModsScreen(current));
                     return false;
                 }
                 return true;

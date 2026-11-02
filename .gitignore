@@ -34,3 +34,7 @@ fs-manager-udroid/
 /zythera-modpack-*.zip
 /zythera-client-*.mrpack
 /zythera-client-*.zip
+
+# Downloaded third-party mods have separate redistribution terms.
+/zythera-client/mods/*.jar
+/zythera-client/mods/*.jar.disabled

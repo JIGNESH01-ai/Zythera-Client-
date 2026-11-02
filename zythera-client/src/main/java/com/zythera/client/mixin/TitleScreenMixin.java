@@ -4,7 +4,7 @@ import net.minecraft.client.gui.DrawContext;
 import com.zythera.client.PerformanceSettings;
 import com.zythera.client.PurpleButton;
 import com.zythera.client.AccountsInfoScreen;
-import com.zythera.client.ZytheraScreen;
+import com.zythera.client.InstalledModsScreen;
 import com.zythera.client.TextureLayout;
 import net.minecraft.client.gui.screen.world.SelectWorldScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
@@ -38,7 +38,7 @@ public abstract class TitleScreenMixin extends Screen {
         PurpleButton multiplayer = new PurpleButton(x, y+h+gap, w, h, Text.literal("Multiplayer"), b -> client.setScreen(new MultiplayerScreen(this)));
         multiplayer.active = client.isMultiplayerEnabled();
         addDrawableChild(multiplayer);
-        addDrawableChild(new PurpleButton(x, y+2*(h+gap), w, h, Text.literal("Mods"), b -> client.setScreen(new ZytheraScreen(this))));
+        addDrawableChild(new PurpleButton(x, y+2*(h+gap), w, h, Text.literal("Mods"), b -> client.setScreen(new InstalledModsScreen(this))));
         addDrawableChild(new PurpleButton(x, y+3*(h+gap), w, h, Text.literal("Settings"), b -> client.setScreen(new OptionsScreen(this, client.options))));
         addDrawableChild(new PurpleButton(x, y+4*(h+gap), (w-gap)/2, h, Text.literal("Accounts"), b -> client.setScreen(new AccountsInfoScreen(this))));
         addDrawableChild(new PurpleButton(x+(w+gap)/2, y+4*(h+gap), (w-gap)/2, h, Text.literal("Quit Game"), b -> client.scheduleStop()));
@@ -97,7 +97,7 @@ public abstract class TitleScreenMixin extends Screen {
             PerformanceSettings.apply(client, "Potato");
             System.out.println("[Zythera] SMOKE_PROFILES_OK");
             System.out.println("[Zythera] SMOKE_TITLE_RENDERED");
-            client.scheduleStop();
+            client.setScreen(new InstalledModsScreen(this));
         }
         ci.cancel();
     }

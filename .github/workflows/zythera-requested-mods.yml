@@ -1,0 +1,18 @@
+name: Requested mods download check
+on:
+  push:
+    paths: ['zythera-client/scripts/download-requested-mods.py', '.github/workflows/zythera-requested-mods.yml']
+  pull_request:
+    paths: ['zythera-client/scripts/download-requested-mods.py', '.github/workflows/zythera-requested-mods.yml']
+permissions:
+  contents: read
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download directly from upstream and verify metadata and hashes
+        run: |
+          set -o pipefail
+          python3 zythera-client/scripts/download-requested-mods.py /tmp/zythera-requested-mods 2>&1 | tee /tmp/mod-download.log || { tail -25 /tmp/mod-download.log | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g;s/^/::error::/'; exit 1; }
+          test "$(find /tmp/zythera-requested-mods -maxdepth 1 -name '*.jar' | wc -l)" -eq 13
